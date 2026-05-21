@@ -1,13 +1,14 @@
 import { create } from "zustand";
 
-export type AppTab = "quran" | "hadith";
-export type SettingsTab = "verses" | "recitation" | "design" | "export";
+export type AppMode = "quran" | "hadith";
+export type AppStep = "content" | "voice" | "design" | "export";
 
 interface SelectedReader {
   id: string;
   name: string;
   qualityLabel: string;
   bitrate: string;
+  audioUrl: string;
 }
 
 interface SelectedVerse {
@@ -40,6 +41,7 @@ interface VideoDesign {
   showEnglishTranslation: boolean;
   customTexts: string[];
   imageMotion: string;
+  showWatermark: boolean;
 }
 
 interface VideoExport {
@@ -50,46 +52,41 @@ interface VideoExport {
   enableCinematicAudio: boolean;
 }
 
-interface AppState {
-  // Navigation
-  activeTab: AppTab;
-  setActiveTab: (tab: AppTab) => void;
-  activeSettingsTab: SettingsTab;
-  setActiveSettingsTab: (tab: SettingsTab) => void;
+interface HadithData {
+  category: string;
+  text: string;
+  narrator: string;
+  source: string;
+}
 
-  // Onboarding
-  showOnboarding: boolean;
-  setShowOnboarding: (show: boolean) => void;
-  onboardingStep: number;
-  setOnboardingStep: (step: number) => void;
+interface AppState {
+  // Mode & Step
+  appMode: AppMode;
+  setAppMode: (mode: AppMode) => void;
+  currentStep: AppStep;
+  setCurrentStep: (step: AppStep) => void;
+  completedSteps: AppStep[];
+  markStepCompleted: (step: AppStep) => void;
 
   // Quran browser
   showQuranBrowser: boolean;
   setShowQuranBrowser: (show: boolean) => void;
-  surahSearch: string;
-  setSurahSearch: (search: string) => void;
-
-  // Report modal
-  showReport: boolean;
-  setShowReport: (show: boolean) => void;
-
-  // Hadith
-  hadithCategory: string;
-  setHadithCategory: (cat: string) => void;
-  hadithSearch: string;
-  setHadithSearch: (search: string) => void;
 
   // Reader
   selectedReader: SelectedReader | null;
   setSelectedReader: (reader: SelectedReader | null) => void;
-  readerSearch: string;
-  setReaderSearch: (search: string) => void;
+  isAudioPlaying: boolean;
+  setIsAudioPlaying: (playing: boolean) => void;
 
   // Verses
   selectedVerses: SelectedVerse[];
   addVerse: (verse: SelectedVerse) => void;
   removeVerse: (surahId: number, ayahNumber: number) => void;
   clearVerses: () => void;
+
+  // Hadith
+  hadithData: HadithData;
+  updateHadithData: (updates: Partial<HadithData>) => void;
 
   // Design
   design: VideoDesign;
@@ -109,39 +106,28 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set) => ({
-  // Navigation
-  activeTab: "quran",
-  setActiveTab: (tab) => set({ activeTab: tab }),
-  activeSettingsTab: "verses",
-  setActiveSettingsTab: (tab) => set({ activeSettingsTab: tab }),
-
-  // Onboarding
-  showOnboarding: true,
-  setShowOnboarding: (show) => set({ showOnboarding: show }),
-  onboardingStep: 0,
-  setOnboardingStep: (step) => set({ onboardingStep: step }),
+  // Mode & Step
+  appMode: "quran",
+  setAppMode: (mode) => set({ appMode: mode, currentStep: "content", completedSteps: [] }),
+  currentStep: "content",
+  setCurrentStep: (step) => set({ currentStep: step }),
+  completedSteps: [],
+  markStepCompleted: (step) =>
+    set((state) => ({
+      completedSteps: state.completedSteps.includes(step)
+        ? state.completedSteps
+        : [...state.completedSteps, step],
+    })),
 
   // Quran browser
   showQuranBrowser: false,
   setShowQuranBrowser: (show) => set({ showQuranBrowser: show }),
-  surahSearch: "",
-  setSurahSearch: (search) => set({ surahSearch: search }),
-
-  // Report modal
-  showReport: false,
-  setShowReport: (show) => set({ showReport: show }),
-
-  // Hadith
-  hadithCategory: "bukhari",
-  setHadithCategory: (cat) => set({ hadithCategory: cat }),
-  hadithSearch: "",
-  setHadithSearch: (search) => set({ hadithSearch: search }),
 
   // Reader
   selectedReader: null,
   setSelectedReader: (reader) => set({ selectedReader: reader }),
-  readerSearch: "",
-  setReaderSearch: (search) => set({ readerSearch: search }),
+  isAudioPlaying: false,
+  setIsAudioPlaying: (playing) => set({ isAudioPlaying: playing }),
 
   // Verses
   selectedVerses: [],
@@ -161,19 +147,29 @@ export const useAppStore = create<AppState>((set) => ({
     })),
   clearVerses: () => set({ selectedVerses: [] }),
 
+  // Hadith
+  hadithData: {
+    category: "bukhari",
+    text: "",
+    narrator: "",
+    source: "",
+  },
+  updateHadithData: (updates) =>
+    set((state) => ({ hadithData: { ...state.hadithData, ...updates } })),
+
   // Design
   design: {
-    templateId: "",
-    bg1: "#0a0f1e",
-    bg2: "#050810",
-    accentColor: "#d4a853",
-    patternType: "hexagonal",
+    templateId: "night-sky",
+    bg1: "#0f1419",
+    bg2: "#1a1a2e",
+    accentColor: "#c96442",
+    patternType: "geometric",
     patternDensity: 3,
     showPattern: true,
     fontType: "naskh",
     customReaderName: "",
-    textColor: "#fef9c3",
-    accentTextColor: "#eab308",
+    textColor: "#e7e9ea",
+    accentTextColor: "#c96442",
     textStyle: "normal",
     showAyahNumber: true,
     showReaderName: true,
@@ -182,9 +178,10 @@ export const useAppStore = create<AppState>((set) => ({
     showProgressBar: true,
     aspectRatio: "9:16",
     videoEffect: "none",
-    showEnglishTranslation: true,
+    showEnglishTranslation: false,
     customTexts: [],
     imageMotion: "none",
+    showWatermark: true,
   },
   updateDesign: (updates) =>
     set((state) => ({ design: { ...state.design, ...updates } })),

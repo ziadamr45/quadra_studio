@@ -1,7 +1,7 @@
 'use client';
 
-import MainPage from '@/components/MainPage';
+import QudraApp from '@/components/QudraApp';
 
 export default function Home() {
-  return <MainPage />;
+  return <QudraApp />;
 }

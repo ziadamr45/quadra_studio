@@ -9,6 +9,7 @@ export interface Surah {
 export interface ReaderQuality {
   label: string;
   bitrate: string;
+  audioId: string;
 }
 
 export interface Reader {
@@ -134,332 +135,203 @@ export const surahs: Surah[] = [
   { id: 114, name: "الناس", nameEn: "An-Nas", ayahs: 6, type: "meccan" },
 ];
 
+// Audio IDs map to alquran.cloud API identifiers
 export const readers: Reader[] = [
   {
-    id: "abdulbasit-murattal",
-    name: "عبد الباسط عبد الصمد",
+    id: "ar.abdulbasitmurattal",
+    name: "عبد الباسط عبد الصمد (مرتل)",
     qualities: [
-      { label: "مرتل", bitrate: "64kbps" },
-      { label: "مرتل - جودة عالية", bitrate: "192kbps" },
-      { label: "مجود", bitrate: "128kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.abdulbasitmurattal" },
+      { label: "192kbps", bitrate: "192kbps", audioId: "ar.abdulbasitmurattal" },
     ],
   },
   {
-    id: "abdullah-basfar",
+    id: "ar.abdulbasitmujawwad",
+    name: "عبد الباسط عبد الصمد (مجود)",
+    qualities: [
+      { label: "128kbps", bitrate: "128kbps", audioId: "ar.abdulbasitmujawwad" },
+    ],
+  },
+  {
+    id: "ar.abdullahbasfar",
     name: "عبد الله بصفر",
     qualities: [
-      { label: "عادي", bitrate: "32kbps" },
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "192kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.abdullahbasfar" },
+      { label: "192kbps", bitrate: "192kbps", audioId: "ar.abdullahbasfar" },
     ],
   },
   {
-    id: "abdulrahman-sudais",
+    id: "ar.sudais",
     name: "عبد الرحمن السديس",
     qualities: [
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "192kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.sudais" },
+      { label: "192kbps", bitrate: "192kbps", audioId: "ar.sudais" },
     ],
   },
   {
-    id: "abubakr-shatri",
+    id: "ar.shaatree",
     name: "أبو بكر الشاطري",
     qualities: [
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "128kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.shaatree" },
+      { label: "128kbps", bitrate: "128kbps", audioId: "ar.shaatree" },
     ],
   },
   {
-    id: "ahmad-ajmi",
+    id: "ar.ahmedajamy",
     name: "أحمد بن علي العجمي",
     qualities: [
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "128kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.ahmedajamy" },
+      { label: "128kbps", bitrate: "128kbps", audioId: "ar.ahmedajamy" },
     ],
   },
   {
-    id: "mishary-afasy",
+    id: "ar.alafasy",
     name: "مشاري بن راشد العفاسي",
     qualities: [
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "128kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.alafasy" },
+      { label: "128kbps", bitrate: "128kbps", audioId: "ar.alafasy" },
     ],
   },
   {
-    id: "saad-ghamdi",
-    name: "سعد الغامدي",
-    qualities: [{ label: "عادي", bitrate: "40kbps" }],
+    id: "ar.saaborimuneer",
+    name: "سعود الشريم",
+    qualities: [
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.saaborimuneer" },
+    ],
   },
   {
-    id: "hani-rrifai",
+    id: "ar.hanirifai",
     name: "هاني الرفاعي",
     qualities: [
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "192kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.hanirifai" },
+      { label: "192kbps", bitrate: "192kbps", audioId: "ar.hanirifai" },
     ],
   },
   {
-    id: "mahmoud-husary",
+    id: "ar.husary",
     name: "محمود خليل الحصري",
     qualities: [
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "128kbps" },
-      { label: "مجود", bitrate: "64kbps" },
-      { label: "مجود - جودة عالية", bitrate: "128kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.husary" },
+      { label: "128kbps", bitrate: "128kbps", audioId: "ar.husary" },
     ],
   },
   {
-    id: "ali-hudhaifi",
+    id: "ar.hudhaify",
     name: "علي بن عبدالرحمن الحذيفي",
     qualities: [
-      { label: "عادي", bitrate: "32kbps" },
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "128kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.hudhaify" },
+      { label: "128kbps", bitrate: "128kbps", audioId: "ar.hudhaify" },
     ],
   },
   {
-    id: "ibrahim-akhdar",
-    name: "إبراهيم الأخضر",
-    qualities: [
-      { label: "عادي", bitrate: "32kbps" },
-      { label: "عادي", bitrate: "64kbps" },
-    ],
-  },
-  {
-    id: "mahir-muaiqly",
+    id: "ar.mahermuaiqly",
     name: "ماهر المعيقلي",
     qualities: [
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "128kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.mahermuaiqly" },
+      { label: "128kbps", bitrate: "128kbps", audioId: "ar.mahermuaiqly" },
     ],
   },
   {
-    id: "mohammad-minshawi",
+    id: "ar.minshawi",
     name: "محمد صديق المنشاوي",
     qualities: [
-      { label: "عادي", bitrate: "16kbps" },
-      { label: "عادي", bitrate: "32kbps" },
-      { label: "مجود", bitrate: "64kbps" },
-      { label: "مجود - جودة عالية", bitrate: "192kbps" },
-      { label: "مرتل", bitrate: "128kbps" },
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.minshawi" },
+      { label: "192kbps", bitrate: "192kbps", audioId: "ar.minshawi" },
     ],
   },
   {
-    id: "mohammad-tablawi",
-    name: "محمد الطبلاوي",
-    qualities: [
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "128kbps" },
-    ],
-  },
-  {
-    id: "mohammad-ayyub",
-    name: "محمد أيوب",
-    qualities: [
-      { label: "عادي", bitrate: "128kbps" },
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "عادي", bitrate: "32kbps" },
-    ],
-  },
-  {
-    id: "mohammad-jibreel",
-    name: "محمد جبريل",
-    qualities: [
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "128kbps" },
-    ],
-  },
-  {
-    id: "mustafa-ismail",
-    name: "مصطفى إسماعيل",
-    qualities: [{ label: "عادي", bitrate: "48kbps" }],
-  },
-  {
-    id: "saud-shuraim",
-    name: "سعود بن إبراهيم الشريم",
-    qualities: [
-      { label: "عادي", bitrate: "64kbps" },
-      { label: "جودة عالية", bitrate: "128kbps" },
-    ],
-  },
-  {
-    id: "salah-bukhatir",
-    name: "صلاح بوخاطر",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "mohsen-qasim",
-    name: "محسن القاسم",
-    qualities: [{ label: "جودة عالية", bitrate: "192kbps" }],
-  },
-  {
-    id: "abdullah-juhani",
-    name: "عبد الله عواد الجهني",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "salah-budair",
-    name: "صلاح البدير",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "abdullah-matrud",
-    name: "عبد الله المطرود",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "ahmad-nuina",
-    name: "أحمد نعينع",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "mohammad-abdulkareem",
-    name: "محمد عبد الكريم",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "khalifa-taniji",
-    name: "خليفة الطنيجي",
-    qualities: [{ label: "عادي", bitrate: "64kbps" }],
-  },
-  {
-    id: "mahmoud-banna",
-    name: "محمود علي البنا",
-    qualities: [{ label: "عادي", bitrate: "32kbps" }],
-  },
-  {
-    id: "khaled-qahtani",
-    name: "خالد عبد الله القحطاني",
-    qualities: [{ label: "جودة عالية", bitrate: "192kbps" }],
-  },
-  {
-    id: "yasser-dosari",
+    id: "ar.muaiqly",
     name: "ياسر الدوسري",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
+    qualities: [
+      { label: "128kbps", bitrate: "128kbps", audioId: "ar.muaiqly" },
+    ],
   },
   {
-    id: "nasser-qatami",
-    name: "ناصر القطامي",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "ali-suwaisi",
-    name: "علي حجاج السويسي",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "sahl-yaseen",
-    name: "سهل ياسين",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "aziz-alili",
-    name: "عزيز عليلي",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "yasser-salama",
-    name: "ياسر سلامة",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "akram-alalqmi",
-    name: "أكرم العلاقمي",
-    qualities: [{ label: "عادي", bitrate: "128kbps" }],
-  },
-  {
-    id: "ali-jaber",
-    name: "علي جابر",
-    qualities: [{ label: "عادي", bitrate: "64kbps" }],
-  },
-  {
-    id: "faris-abbad",
-    name: "فارس عباد",
-    qualities: [{ label: "عادي", bitrate: "64kbps" }],
-  },
-  {
-    id: "ayman-suwayd",
+    id: "ar.aymanswaid",
     name: "أيمن سويد",
-    qualities: [{ label: "عادي", bitrate: "64kbps" }],
+    qualities: [
+      { label: "64kbps", bitrate: "64kbps", audioId: "ar.aymanswaid" },
+    ],
   },
 ];
 
+// Qudra Studio - Completely new template set
 export const videoTemplates = [
   {
-    id: "laylat-alqadr",
-    name: "ليلة القدر",
+    id: "night-sky",
+    name: "سماء الليل",
     icon: "🌙",
-    description: "أجواء إيمانية هادئة مع تدرج داكن وزخارف ذهبية",
-    bg1: "#0a0f1e",
-    bg2: "#050810",
-    accentColor: "#d4a853",
-    patternType: "hexagonal",
+    description: "خلفية ليلية هادئة مع لمسات دافئة",
+    bg1: "#0f1419",
+    bg2: "#1a1a2e",
+    accentColor: "#c96442",
+    patternType: "geometric",
   },
   {
-    id: "emerald",
-    name: "زمرد",
-    icon: "🕌",
-    description: "تصميم ملكي باللون الأخضر الزمردي والزخارف الإسلامية",
-    bg1: "#0a1a15",
-    bg2: "#050d0a",
-    accentColor: "#10b981",
-    patternType: "hexagonal",
-  },
-  {
-    id: "golden-classic",
-    name: "ذهبي كلاسيكي",
-    icon: "✨",
-    description: "التصميم التقليدي الفاخر باللون الأسود والذهبي",
-    bg1: "#0f0f0f",
-    bg2: "#080808",
+    id: "desert-sand",
+    name: "رمال الصحراء",
+    icon: "🏜️",
+    description: "ألوان دافئة مستوحاة من رمال الجزيرة",
+    bg1: "#1a1410",
+    bg2: "#0f0c08",
     accentColor: "#d4a853",
     patternType: "arabic",
   },
   {
-    id: "green-islamic",
-    name: "أخضر إسلامي",
+    id: "deep-forest",
+    name: "غابة عميقة",
     icon: "🌿",
-    description: "تناغم الطبيعة مع اللون الأخضر الداكن والزخارف النبيلة",
+    description: "أخضر داكن مع لمسات طبيعية هادئة",
     bg1: "#0a1a10",
     bg2: "#050d08",
-    accentColor: "#22c55e",
+    accentColor: "#7c9a82",
     patternType: "floral",
   },
   {
-    id: "calm-blue",
-    name: "أزرق هادئ",
-    icon: "🌊",
-    description: "تصميم مريح للعين بألوان سماوية هادئة",
-    bg1: "#0a1520",
-    bg2: "#050a12",
-    accentColor: "#3b82f6",
+    id: "crimson-dusk",
+    name: "شفق قرمزي",
+    icon: "🌅",
+    description: "تدرجات حمراء داكنة تحاكي أجواء الغروب",
+    bg1: "#1a0f10",
+    bg2: "#0d0508",
+    accentColor: "#c94242",
     patternType: "waves",
   },
   {
-    id: "warm-brown",
-    name: "بني دافئ",
-    icon: "☕",
-    description: "أجواء خشبية دافئة تذكر بالمساجد القديمة",
-    bg1: "#1a1008",
-    bg2: "#0d0804",
-    accentColor: "#c2703e",
-    patternType: "geometric",
+    id: "royal-amber",
+    name: "عنبر ملكي",
+    icon: "👑",
+    description: "أسود فاخر مع لمسات ذهبية ملكية",
+    bg1: "#121212",
+    bg2: "#0a0a0a",
+    accentColor: "#d4a853",
+    patternType: "arabic",
   },
   {
-    id: "pure-white",
-    name: "أبيض نقي",
-    icon: "⚪",
-    description: "تصميم عصري بسيط بخلفية فاتحة وتفاصيل دقيقة",
+    id: "ocean-depth",
+    name: "أعماق المحيط",
+    icon: "🌊",
+    description: "أزرق غامق مع إيقاع هادئ ومريح",
+    bg1: "#0a1520",
+    bg2: "#050a12",
+    accentColor: "#5a9ab5",
+    patternType: "waves",
+  },
+  {
+    id: "ivory-clean",
+    name: "عاجي نقي",
+    icon: "✨",
+    description: "تصميم فاتح بسيط وأنيق",
     bg1: "#f5f0eb",
     bg2: "#e8e0d5",
-    accentColor: "#1a1a1a",
+    accentColor: "#c96442",
     patternType: "minimal",
   },
   {
-    id: "chroma",
-    name: "كروما",
-    icon: "📺",
-    description: "خلفية سوداء بالكامل لتسهيل دمج النص في برامج المونتاج",
+    id: "pure-chroma",
+    name: "كروما نقي",
+    icon: "🎬",
+    description: "خلفية سوداء صافية للمونتاج",
     bg1: "#000000",
     bg2: "#000000",
     accentColor: "#ffffff",
@@ -468,17 +340,17 @@ export const videoTemplates = [
 ];
 
 export const patternTypes = [
-  { id: "hexagonal", name: "شبكة سداسية" },
-  { id: "arabic", name: "زخرفة عربية" },
-  { id: "floral", name: "زخرفة نباتية" },
   { id: "geometric", name: "هندسية" },
+  { id: "arabic", name: "عربية" },
+  { id: "floral", name: "نباتية" },
   { id: "waves", name: "أمواج" },
+  { id: "hexagonal", name: "سداسية" },
   { id: "minimal", name: "بسيطة" },
-  { id: "none", name: "بدون زخرفة" },
+  { id: "none", name: "بدون" },
 ];
 
 export const fontTypes = [
-  { id: "naskh", name: "خط النسخ (التقليدي)" },
+  { id: "naskh", name: "خط النسخ" },
   { id: "thuluth", name: "خط الثلث" },
   { id: "diwani", name: "خط الديواني" },
   { id: "kufi", name: "خط الكوفي" },
@@ -501,21 +373,21 @@ export const videoEffects = [
 ];
 
 export const videoPresets = [
-  { id: "1080p", name: "دقة عالية (1080p)" },
-  { id: "720p", name: "متوسط (720p)" },
-  { id: "480p", name: "منخفض (480p)" },
+  { id: "1080p", name: "1080p - دقة عالية" },
+  { id: "720p", name: "720p - متوسط" },
+  { id: "480p", name: "480p - منخفض" },
 ];
 
 export const fpsOptions = [
-  { id: "24", name: "24 إطاراً" },
-  { id: "30", name: "30 إطاراً" },
-  { id: "60", name: "60 إطاراً" },
+  { id: "24", name: "24 إطار" },
+  { id: "30", name: "30 إطار" },
+  { id: "60", name: "60 إطار" },
 ];
 
 export const crfOptions = [
-  { id: "18", name: "18 (أعلى جودة)" },
-  { id: "23", name: "23 (متوازن)" },
-  { id: "28", name: "28 (ملف أصغر)" },
+  { id: "18", name: "18 - أعلى جودة" },
+  { id: "23", name: "23 - متوازن" },
+  { id: "28", name: "28 - حجم صغير" },
 ];
 
 export const textStyleOptions = [
@@ -544,3 +416,15 @@ export const hadithCategories = [
   { id: "malik", name: "موطأ مالك" },
   { id: "ahmad", name: "مسند أحمد" },
 ];
+
+// Helper: Build audio URL for a specific ayah
+export function getAudioUrl(audioId: string, surahNumber: number, ayahNumber: number): string {
+  const paddedSurah = surahNumber.toString().padStart(3, "0");
+  const paddedAyah = ayahNumber.toString().padStart(3, "0");
+  return `https://cdn.islamic.network/quran/audio/128/${audioId}/${paddedSurah}${paddedAyah}.mp3`;
+}
+
+// Helper: Build API URL for fetching ayah text
+export function getAyahApiUrl(surahNumber: number, ayahNumber: number): string {
+  return `https://api.alquran.cloud/v1/ayah/${surahNumber}:${ayahNumber}`;
+}
