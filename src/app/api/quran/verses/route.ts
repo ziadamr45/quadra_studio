@@ -15,51 +15,36 @@ export async function GET(request: NextRequest) {
     const fromNum = parseInt(from);
     const toNum = parseInt(to);
 
-    const verses: { number: number; numberInSurah: number; text: string; surah: { number: number; name: string; englishName: string } }[] = [];
-    for (let i = fromNum; i <= toNum; i++) {
-      const res = await fetch(`https://api.alquran.cloud/v1/ayah/${surahNum}:${i}`, {
-        next: { revalidate: 86400 },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.code === 200 && data.data) {
-          verses.push({
-            number: data.data.number,
-            numberInSurah: data.data.numberInSurah,
-            text: data.data.text,
-            surah: {
-              number: data.data.surah.number,
-              name: data.data.surah.name,
-              englishName: data.data.surah.englishName,
-            },
-          });
-        }
-      }
+    // Fetch the entire surah at once instead of individual ayahs
+    const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`, {
+      next: { revalidate: 86400 },
+    });
+
+    if (!res.ok) {
+      return NextResponse.json({ error: 'Failed to fetch surah' }, { status: 500 });
     }
 
-    // Also try to get English translation
-    let englishVerses: { numberInSurah: number; text: string }[] = [];
-    try {
-      for (let i = fromNum; i <= toNum; i++) {
-        const res = await fetch(
-          `https://api.alquran.cloud/v1/ayah/${surahNum}:${i}/en.sahih`,
-          { next: { revalidate: 86400 } }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          if (data.code === 200 && data.data) {
-            englishVerses.push({
-              numberInSurah: data.data.numberInSurah,
-              text: data.data.text,
-            });
-          }
-        }
-      }
-    } catch {
-      // English translation is optional
+    const data = await res.json();
+    if (data.code !== 200 || !data.data?.ayahs) {
+      return NextResponse.json({ error: 'Invalid response' }, { status: 500 });
     }
 
-    return NextResponse.json({ verses, englishVerses });
+    // Filter the ayahs to the requested range
+    const allAyahs = data.data.ayahs;
+    const verses = allAyahs
+      .filter((a: { numberInSurah: number }) => a.numberInSurah >= fromNum && a.numberInSurah <= toNum)
+      .map((a: { number: number; numberInSurah: number; text: string }) => ({
+        number: a.number,
+        numberInSurah: a.numberInSurah,
+        text: a.text,
+        surah: {
+          number: surahNum,
+          name: data.data.name,
+          englishName: data.data.englishName,
+        },
+      }));
+
+    return NextResponse.json({ verses });
   } catch {
     return NextResponse.json({ error: 'Failed to fetch verses' }, { status: 500 });
   }

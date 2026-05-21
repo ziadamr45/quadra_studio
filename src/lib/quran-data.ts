@@ -15,6 +15,7 @@ export interface ReaderQuality {
 export interface Reader {
   id: string;
   name: string;
+  nameEn: string;
   qualities: ReaderQuality[];
 }
 
@@ -135,66 +136,59 @@ export const surahs: Surah[] = [
   { id: 114, name: "الناس", nameEn: "An-Nas", ayahs: 6, type: "meccan" },
 ];
 
-// Audio IDs map to alquran.cloud API identifiers
 export const readers: Reader[] = [
   {
-    id: "ar.abdulbasitmurattal",
-    name: "عبد الباسط عبد الصمد (مرتل)",
+    id: "ar.alafasy",
+    name: "مشاري العفاسي",
+    nameEn: "Mishary Al-Afasy",
     qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.abdulbasitmurattal" },
+      { label: "128kbps", bitrate: "128kbps", audioId: "ar.alafasy" },
+    ],
+  },
+  {
+    id: "ar.abdulbasitmurattal",
+    name: "عبد الباسط عبد الصمد",
+    nameEn: "Abdul Basit (Murattal)",
+    qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.abdulbasitmurattal" },
     ],
   },
   {
     id: "ar.abdulbasitmujawwad",
-    name: "عبد الباسط عبد الصمد (مجود)",
+    name: "عبد الباسط (مجود)",
+    nameEn: "Abdul Basit (Mujawwad)",
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.abdulbasitmujawwad" },
     ],
   },
   {
-    id: "ar.abdullahbasfar",
-    name: "عبد الله بصفر",
-    qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.abdullahbasfar" },
-      { label: "192kbps", bitrate: "192kbps", audioId: "ar.abdullahbasfar" },
-    ],
-  },
-  {
     id: "ar.sudais",
     name: "عبد الرحمن السديس",
+    nameEn: "Abdurrahman As-Sudais",
     qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.sudais" },
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.sudais" },
     ],
   },
   {
     id: "ar.shaatree",
     name: "أبو بكر الشاطري",
+    nameEn: "Abu Bakr Ash-Shatri",
     qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.shaatree" },
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.shaatree" },
     ],
   },
   {
     id: "ar.ahmedajamy",
-    name: "أحمد بن علي العجمي",
+    name: "أحمد العجمي",
+    nameEn: "Ahmed Al-Ajmy",
     qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.ahmedajamy" },
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.ahmedajamy" },
-    ],
-  },
-  {
-    id: "ar.alafasy",
-    name: "مشاري بن راشد العفاسي",
-    qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.alafasy" },
-      { label: "128kbps", bitrate: "128kbps", audioId: "ar.alafasy" },
     ],
   },
   {
     id: "ar.saaborimuneer",
     name: "سعود الشريم",
+    nameEn: "Saood Ash-Shuraym",
     qualities: [
       { label: "64kbps", bitrate: "64kbps", audioId: "ar.saaborimuneer" },
     ],
@@ -202,135 +196,156 @@ export const readers: Reader[] = [
   {
     id: "ar.hanirifai",
     name: "هاني الرفاعي",
+    nameEn: "Hani Ar-Rifai",
     qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.hanirifai" },
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.hanirifai" },
     ],
   },
   {
     id: "ar.husary",
     name: "محمود خليل الحصري",
+    nameEn: "Mahmoud Khalil Al-Husary",
     qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.husary" },
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.husary" },
     ],
   },
   {
     id: "ar.hudhaify",
-    name: "علي بن عبدالرحمن الحذيفي",
+    name: "علي الحذيفي",
+    nameEn: "Ali Al-Hudhaify",
     qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.hudhaify" },
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.hudhaify" },
     ],
   },
   {
     id: "ar.mahermuaiqly",
     name: "ماهر المعيقلي",
+    nameEn: "Maher Al-Muaiqly",
     qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.mahermuaiqly" },
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.mahermuaiqly" },
     ],
   },
   {
     id: "ar.minshawi",
     name: "محمد صديق المنشاوي",
+    nameEn: "Muhammad Siddiq Al-Minshawi",
     qualities: [
-      { label: "64kbps", bitrate: "64kbps", audioId: "ar.minshawi" },
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.minshawi" },
     ],
   },
   {
-    id: "ar.muaiqly",
-    name: "ياسر الدوسري",
+    id: "ar.abdullahbasfar",
+    name: "عبد الله بصفر",
+    nameEn: "Abdullah Basfar",
     qualities: [
-      { label: "128kbps", bitrate: "128kbps", audioId: "ar.muaiqly" },
+      { label: "192kbps", bitrate: "192kbps", audioId: "ar.abdullahbasfar" },
     ],
   },
   {
     id: "ar.aymanswaid",
     name: "أيمن سويد",
+    nameEn: "Ayman Suwayd",
     qualities: [
       { label: "64kbps", bitrate: "64kbps", audioId: "ar.aymanswaid" },
     ],
   },
 ];
 
-// Qudra Studio - Completely new template set
+// Qudra Studio Templates - Completely Unique Design Identity
 export const videoTemplates = [
   {
-    id: "night-sky",
-    name: "سماء الليل",
-    icon: "🌙",
-    description: "خلفية ليلية هادئة مع لمسات دافئة",
-    bg1: "#0f1419",
-    bg2: "#1a1a2e",
-    accentColor: "#c96442",
+    id: "noor",
+    name: "النور",
+    nameEn: "Noor",
+    icon: "✦",
+    description: "ظلام عميق مع لمسات ذهبية",
+    bg1: "#0a0a0c",
+    bg2: "#12121a",
+    accentColor: "#c9a84c",
+    patternType: "arabic",
+  },
+  {
+    id: "tubar",
+    name: "الطُّبار",
+    nameEn: "Tubar",
+    icon: "◈",
+    description: "أسود فاخر مع نقوش هندسية",
+    bg1: "#08080a",
+    bg2: "#0f0f14",
+    accentColor: "#d4ba6a",
     patternType: "geometric",
   },
   {
-    id: "desert-sand",
-    name: "رمال الصحراء",
-    icon: "🏜️",
-    description: "ألوان دافئة مستوحاة من رمال الجزيرة",
-    bg1: "#1a1410",
-    bg2: "#0f0c08",
-    accentColor: "#d4a853",
-    patternType: "arabic",
+    id: "rawasi",
+    name: "الرَّوَاسِي",
+    nameEn: "Rawasi",
+    icon: "◆",
+    description: "رمادي داكن صلب كالجبال",
+    bg1: "#111114",
+    bg2: "#19191f",
+    accentColor: "#8b9dc3",
+    patternType: "hexagonal",
   },
   {
-    id: "deep-forest",
-    name: "غابة عميقة",
-    icon: "🌿",
-    description: "أخضر داكن مع لمسات طبيعية هادئة",
-    bg1: "#0a1a10",
-    bg2: "#050d08",
-    accentColor: "#7c9a82",
+    id: "dihan",
+    name: "الدِّهان",
+    nameEn: "Dihan",
+    icon: "✧",
+    description: "بني دافئ مستوحى من الطبيعة",
+    bg1: "#100c08",
+    bg2: "#1a140e",
+    accentColor: "#c4884c",
     patternType: "floral",
   },
   {
-    id: "crimson-dusk",
-    name: "شفق قرمزي",
-    icon: "🌅",
-    description: "تدرجات حمراء داكنة تحاكي أجواء الغروب",
-    bg1: "#1a0f10",
-    bg2: "#0d0508",
-    accentColor: "#c94242",
+    id: "zulumat",
+    name: "الظُّلُمَات",
+    nameEn: "Zulumat",
+    icon: "◉",
+    description: "سواد حالق مع تدرجات خفية",
+    bg1: "#050506",
+    bg2: "#0a0a0c",
+    accentColor: "#9a9a9a",
+    patternType: "none",
+  },
+  {
+    id: "bahar",
+    name: "البَحْر",
+    nameEn: "Bahar",
+    icon: "◇",
+    description: "أخضر غامق كأعماق البحار",
+    bg1: "#080f0c",
+    bg2: "#0e1a15",
+    accentColor: "#4a9e7a",
     patternType: "waves",
   },
   {
-    id: "royal-amber",
-    name: "عنبر ملكي",
-    icon: "👑",
-    description: "أسود فاخر مع لمسات ذهبية ملكية",
-    bg1: "#121212",
-    bg2: "#0a0a0a",
-    accentColor: "#d4a853",
+    id: "hamra",
+    name: "الحَمْرَاء",
+    nameEn: "Hamra",
+    icon: "❖",
+    description: "أحمر قرمزي مع لمسات داكنة",
+    bg1: "#120808",
+    bg2: "#1a0c0c",
+    accentColor: "#c94c4c",
     patternType: "arabic",
   },
   {
-    id: "ocean-depth",
-    name: "أعماق المحيط",
-    icon: "🌊",
-    description: "أزرق غامق مع إيقاع هادئ ومريح",
-    bg1: "#0a1520",
-    bg2: "#050a12",
-    accentColor: "#5a9ab5",
-    patternType: "waves",
-  },
-  {
-    id: "ivory-clean",
-    name: "عاجي نقي",
-    icon: "✨",
-    description: "تصميم فاتح بسيط وأنيق",
-    bg1: "#f5f0eb",
-    bg2: "#e8e0d5",
-    accentColor: "#c96442",
+    id: "sahra",
+    name: "الصَّحْرَاء",
+    nameEn: "Sahra",
+    icon: "◇",
+    description: "رمال دافئة بلمسات ترابية",
+    bg1: "#14120e",
+    bg2: "#1c1a14",
+    accentColor: "#c9a84c",
     patternType: "minimal",
   },
   {
-    id: "pure-chroma",
-    name: "كروما نقي",
-    icon: "🎬",
+    id: "chroma",
+    name: "كروما",
+    nameEn: "Chroma",
+    icon: "□",
     description: "خلفية سوداء صافية للمونتاج",
     bg1: "#000000",
     bg2: "#000000",
@@ -340,8 +355,8 @@ export const videoTemplates = [
 ];
 
 export const patternTypes = [
-  { id: "geometric", name: "هندسية" },
   { id: "arabic", name: "عربية" },
+  { id: "geometric", name: "هندسية" },
   { id: "floral", name: "نباتية" },
   { id: "waves", name: "أمواج" },
   { id: "hexagonal", name: "سداسية" },
@@ -350,18 +365,18 @@ export const patternTypes = [
 ];
 
 export const fontTypes = [
+  { id: "amiri", name: "أميري (Amiri)" },
+  { id: "cairo", name: "القاهرة (Cairo)" },
   { id: "naskh", name: "خط النسخ" },
   { id: "thuluth", name: "خط الثلث" },
-  { id: "diwani", name: "خط الديواني" },
   { id: "kufi", name: "خط الكوفي" },
-  { id: "modern", name: "خط عصري" },
 ];
 
 export const aspectRatios = [
-  { id: "9:16", name: "طولي 9:16 (Reels/TikTok)", width: 1080, height: 1920 },
-  { id: "16:9", name: "عريض 16:9 (YouTube)", width: 1920, height: 1080 },
-  { id: "1:1", name: "مربع 1:1 (Instagram)", width: 1080, height: 1080 },
-  { id: "4:5", name: "4:5 (Instagram Post)", width: 1080, height: 1350 },
+  { id: "9:16", name: "طولي 9:16", desc: "Reels / TikTok / Shorts", width: 1080, height: 1920 },
+  { id: "16:9", name: "عريض 16:9", desc: "YouTube", width: 1920, height: 1080 },
+  { id: "1:1", name: "مربع 1:1", desc: "Instagram Post", width: 1080, height: 1080 },
+  { id: "4:5", name: "4:5", desc: "Instagram Feed", width: 1080, height: 1350 },
 ];
 
 export const videoEffects = [
@@ -369,25 +384,17 @@ export const videoEffects = [
   { id: "fade", name: "تلاشي" },
   { id: "slide", name: "انزلاق" },
   { id: "zoom", name: "تكبير" },
-  { id: "blur", name: "ضبابية" },
 ];
 
 export const videoPresets = [
-  { id: "1080p", name: "1080p - دقة عالية" },
-  { id: "720p", name: "720p - متوسط" },
-  { id: "480p", name: "480p - منخفض" },
+  { id: "1080p", name: "1080p - عالية" },
+  { id: "720p", name: "720p - متوسطة" },
+  { id: "480p", name: "480p - منخفضة" },
 ];
 
 export const fpsOptions = [
   { id: "24", name: "24 إطار" },
   { id: "30", name: "30 إطار" },
-  { id: "60", name: "60 إطار" },
-];
-
-export const crfOptions = [
-  { id: "18", name: "18 - أعلى جودة" },
-  { id: "23", name: "23 - متوازن" },
-  { id: "28", name: "28 - حجم صغير" },
 ];
 
 export const textStyleOptions = [
@@ -401,30 +408,58 @@ export const imageMotionOptions = [
   { id: "none", name: "بدون حركة" },
   { id: "zoom-in", name: "تكبير تدريجي" },
   { id: "zoom-out", name: "تصغير تدريجي" },
-  { id: "pan-left", name: "تحريك لليسار" },
-  { id: "pan-right", name: "تحريك لليمين" },
   { id: "ken-burns", name: "كين بيرنز" },
 ];
 
-export const hadithCategories = [
-  { id: "bukhari", name: "صحيح البخاري" },
-  { id: "muslim", name: "صحيح مسلم" },
-  { id: "tirmidhi", name: "سنن الترمذي" },
-  { id: "abuDawud", name: "سنن أبي داود" },
-  { id: "nasai", name: "سنن النسائي" },
-  { id: "ibnMajah", name: "سنن ابن ماجه" },
-  { id: "malik", name: "موطأ مالك" },
-  { id: "ahmad", name: "مسند أحمد" },
+export const crfOptions = [
+  { id: "18", name: "عالية جداً (18)" },
+  { id: "23", name: "عالية (23) - موصى به" },
+  { id: "28", name: "متوسطة (28)" },
+  { id: "32", name: "منخفضة (32)" },
 ];
 
-// Helper: Build audio URL for a specific ayah
+export const hadithCollections = [
+  { id: "bukhari", name: "صحيح البخاري", nameEn: "Sahih al-Bukhari" },
+  { id: "muslim", name: "صحيح مسلم", nameEn: "Sahih Muslim" },
+  { id: "tirmidhi", name: "سنن الترمذي", nameEn: "Jami at-Tirmidhi" },
+  { id: "abuDawud", name: "سنن أبي داود", nameEn: "Sunan Abi Dawud" },
+  { id: "nasai", name: "سنن النسائي", nameEn: "Sunan an-Nasa'i" },
+  { id: "ibnMajah", name: "سنن ابن ماجه", nameEn: "Sunan Ibn Majah" },
+  { id: "malik", name: "موطأ مالك", nameEn: "Muwatta Malik" },
+  { id: "ahmad", name: "مسند أحمد", nameEn: "Musnad Ahmad" },
+];
+
+// Helper: Build audio URL for a specific ayah using the Islamic Network CDN
 export function getAudioUrl(audioId: string, surahNumber: number, ayahNumber: number): string {
-  const paddedSurah = surahNumber.toString().padStart(3, "0");
-  const paddedAyah = ayahNumber.toString().padStart(3, "0");
-  return `https://cdn.islamic.network/quran/audio/128/${audioId}/${paddedSurah}${paddedAyah}.mp3`;
+  // Calculate the absolute ayah number
+  const surahAyahOffsets = [0, 7, 293, 493, 669, 789, 954, 1160, 1234, 1363, 1492, 1615, 1728, 1771, 1823, 1922, 2050, 2161, 2272, 2370, 2505, 2617, 2695, 2813, 2877, 2954, 3059, 3152, 3240, 3329, 3389, 3423, 3453, 3526, 3580, 3625, 3708, 3890, 3978, 4053, 4107, 4161, 4250, 4339, 4398, 4435, 4470, 4508, 4527, 4572, 4632, 4692, 4754, 4809, 4864, 4942, 5038, 5067, 5089, 5102, 5115, 5129, 5143, 5154, 5165, 5177, 5189, 5201, 5212, 5223, 5234, 5244, 5254, 5264, 5274, 5284, 5294, 5304, 5314, 5324, 5334, 5344, 5354, 5364, 5374, 5384, 5394, 5404, 5414, 5424, 5434, 5444, 5454, 5464, 5474, 5484, 5494, 5504, 5514, 5524, 5534, 5544, 5554, 5564, 5574, 5584, 5594, 5604, 5614, 5624, 5634, 5644, 5654, 5664, 5674, 5684, 5694, 5704, 5714, 5724, 5734, 5744, 5754, 5764, 5774, 5784, 5794, 5804, 5814, 5824, 5834, 5844, 5854, 5864, 5874, 5884, 5894, 5904, 5914, 5924, 5934, 5944, 5954, 5964, 5974, 5984, 5994, 6004, 6014, 6024, 6034, 6044, 6054, 6064, 6114, 6118, 6124, 6130, 6135, 6140, 6147, 6152, 6157, 6164, 6168, 6176, 6181, 6186, 6192, 6197, 6202, 6207, 6213, 6218, 6223, 6229, 6234, 6236];
+  
+  const absoluteAyah = surahAyahOffsets[surahNumber - 1] + ayahNumber;
+  return `https://cdn.islamic.network/quran/audio/128/${audioId}/${absoluteAyah}.mp3`;
 }
 
-// Helper: Build API URL for fetching ayah text
+// Helper: Get ayah text from API
 export function getAyahApiUrl(surahNumber: number, ayahNumber: number): string {
   return `https://api.alquran.cloud/v1/ayah/${surahNumber}:${ayahNumber}`;
+}
+
+// Get pattern CSS background
+export function getPatternCSS(type: string, color: string, density: number): string {
+  const size = (density + 1) * 12;
+  switch (type) {
+    case "arabic":
+      return `repeating-linear-gradient(45deg, ${color}08 0px, ${color}08 1px, transparent 1px, transparent ${size}px), repeating-linear-gradient(-45deg, ${color}08 0px, ${color}08 1px, transparent 1px, transparent ${size}px)`;
+    case "geometric":
+      return `linear-gradient(30deg, ${color}08 12%, transparent 12.5%, transparent 87%, ${color}08 87.5%), linear-gradient(150deg, ${color}08 12%, transparent 12.5%, transparent 87%, ${color}08 87.5%)`;
+    case "hexagonal":
+      return `radial-gradient(circle at 50% 50%, ${color}0a 1px, transparent 1px)`;
+    case "floral":
+      return `radial-gradient(ellipse at 25% 25%, ${color}0a 0%, transparent 50%), radial-gradient(ellipse at 75% 75%, ${color}0a 0%, transparent 50%)`;
+    case "waves":
+      return `repeating-linear-gradient(0deg, ${color}06 0px, transparent 3px, transparent ${size}px)`;
+    case "minimal":
+      return `linear-gradient(180deg, ${color}04 0%, transparent 100%)`;
+    default:
+      return "none";
+  }
 }

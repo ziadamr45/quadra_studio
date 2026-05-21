@@ -1,7 +1,7 @@
 'use client';
 
-import QudraApp from '@/components/QudraApp';
+import QudraStudio from '@/components/QudraStudio';
 
 export default function Home() {
-  return <QudraApp />;
+  return <QudraStudio />;
 }

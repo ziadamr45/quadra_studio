@@ -11,14 +11,14 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Search, Book, ArrowRight, Loader2 } from 'lucide-react';
+import { Search, Book, ArrowRight, Loader2, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function QuranBrowser() {
-  const { showQuranBrowser, setShowQuranBrowser, addVerse } = useAppStore();
+  const { showQuranBrowser, setShowQuranBrowser, addVerses, selectedVerses } = useAppStore();
   const [surahSearch, setSurahSearch] = useState('');
   const [selectedSurah, setSelectedSurah] = useState<number | null>(null);
-  const [fromAyah, setFromAyah] = useState('');
+  const [fromAyah, setFromAyah] = useState('1');
   const [toAyah, setToAyah] = useState('');
   const [isLoadingVerses, setIsLoadingVerses] = useState(false);
 
@@ -50,7 +50,7 @@ export default function QuranBrowser() {
     setIsLoadingVerses(true);
 
     try {
-      // Try to fetch real verses from API
+      // Fetch real verses from the API
       const res = await fetch(
         `/api/quran/verses?surah=${surah.id}&from=${from}&to=${to}`
       );
@@ -58,58 +58,35 @@ export default function QuranBrowser() {
       if (res.ok) {
         const data = await res.json();
         if (data.verses && data.verses.length > 0) {
-          data.verses.forEach((verse: { numberInSurah: number; text: string; surah: { name: string } }) => {
-            addVerse({
-              surahId: surah.id,
-              surahName: verse.surah.name || surah.name,
-              ayahNumber: verse.numberInSurah,
-              ayahText: verse.text,
-            });
-          });
-          toast.success(`تمت إضافة الآيات ${from} إلى ${to} من سورة ${surah.name}`);
+          const newVerses = data.verses.map((verse: { numberInSurah: number; text: string; surah: { name: string }; number: number }) => ({
+            surahId: surah.id,
+            surahName: verse.surah?.name || surah.name,
+            ayahNumber: verse.numberInSurah,
+            ayahText: verse.text,
+            absoluteAyahNumber: verse.number,
+          }));
+          addVerses(newVerses);
+          toast.success(`تمت إضافة ${newVerses.length} آية من سورة ${surah.name}`);
         } else {
-          // Fallback to placeholder text
-          for (let i = from; i <= to; i++) {
-            addVerse({
-              surahId: surah.id,
-              surahName: surah.name,
-              ayahNumber: i,
-              ayahText: `﴿آية ${i} من سورة ${surah.name}﴾`,
-            });
-          }
-          toast.success(`تمت إضافة الآيات`);
+          toast.error('لم يتم العثور على الآيات');
         }
       } else {
-        // Fallback
-        for (let i = from; i <= to; i++) {
-          addVerse({
-            surahId: surah.id,
-            surahName: surah.name,
-            ayahNumber: i,
-            ayahText: `﴿آية ${i} من سورة ${surah.name}﴾`,
-          });
-        }
-        toast.success(`تمت إضافة الآيات`);
+        toast.error('تعذر تحميل الآيات');
       }
     } catch {
-      // Fallback
-      for (let i = from; i <= to; i++) {
-        addVerse({
-          surahId: surah.id,
-          surahName: surah.name,
-          ayahNumber: i,
-          ayahText: `﴿آية ${i} من سورة ${surah.name}﴾`,
-        });
-      }
-      toast.success(`تمت إضافة الآيات`);
+      toast.error('حدث خطأ في التحميل');
     } finally {
       setIsLoadingVerses(false);
       setSelectedSurah(null);
-      setFromAyah('');
+      setFromAyah('1');
       setToAyah('');
       setShowQuranBrowser(false);
     }
-  }, [selectedSurah, fromAyah, toAyah, addVerse, setShowQuranBrowser]);
+  }, [selectedSurah, fromAyah, toAyah, addVerses, setShowQuranBrowser]);
+
+  const isVerseSelected = (surahId: number, ayahNum: number) => {
+    return selectedVerses.some(v => v.surahId === surahId && v.ayahNumber === ayahNum);
+  };
 
   return (
     <Dialog open={showQuranBrowser} onOpenChange={setShowQuranBrowser}>
@@ -118,15 +95,20 @@ export default function QuranBrowser() {
           {/* Header */}
           <div className="p-4 border-b border-border">
             <div className="flex items-center gap-3 mb-3">
-              <Book className="w-5 h-5 text-qudra" />
-              <h2 className="text-lg font-bold text-foreground arabic-text">
-                تصفح القرآن الكريم
-              </h2>
+              <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center">
+                <Book className="w-4 h-4 text-gold" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-foreground arabic-text">
+                  تصفح القرآن الكريم
+                </h2>
+                <p className="text-[10px] text-muted-foreground tracking-wider">BROWSE QURAN</p>
+              </div>
             </div>
             <div className="relative">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="ابحث عن سورة..."
+                placeholder="ابحث عن سورة باسمها أو رقمها..."
                 value={surahSearch}
                 onChange={(e) => setSurahSearch(e.target.value)}
                 className="pr-10 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
@@ -139,27 +121,41 @@ export default function QuranBrowser() {
               <div className="p-4">
                 {/* Back button */}
                 <button
-                  onClick={() => setSelectedSurah(null)}
+                  onClick={() => {
+                    setSelectedSurah(null);
+                    setFromAyah('1');
+                    setToAyah('');
+                  }}
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
                 >
                   <ArrowRight className="w-4 h-4" />
-                  <span className="text-sm">العودة للسور</span>
+                  <span className="text-sm arabic-text">العودة للسور</span>
                 </button>
 
                 {/* Surah info */}
-                <div className="surface rounded-xl p-4 mb-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-full bg-qudra/10 flex items-center justify-center text-qudra font-bold text-sm">
+                <div className="bg-secondary/50 rounded-xl p-4 mb-4 border border-border">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center text-gold font-bold text-lg">
                       {selectedSurahData.id}
                     </div>
                     <div>
-                      <h3 className="font-bold text-foreground arabic-text">
+                      <h3 className="font-bold text-foreground arabic-text text-lg">
                         {selectedSurahData.name}
                       </h3>
                       <p className="text-xs text-muted-foreground">
                         {selectedSurahData.nameEn} • {selectedSurahData.ayahs} آية
                       </p>
                     </div>
+                    <Badge
+                      variant="outline"
+                      className={`mr-auto text-[10px] ${
+                        selectedSurahData.type === 'meccan'
+                          ? 'border-gold/30 text-gold'
+                          : 'border-emerald/30 text-emerald'
+                      }`}
+                    >
+                      {selectedSurahData.type === 'meccan' ? 'مكية' : 'مدنية'}
+                    </Badge>
                   </div>
                 </div>
 
@@ -168,7 +164,7 @@ export default function QuranBrowser() {
                   <p className="text-sm font-medium text-foreground arabic-text">اختر نطاق الآيات</p>
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <label className="text-xs text-muted-foreground mb-1 block">من آية</label>
+                      <label className="text-xs text-muted-foreground mb-1 block arabic-text">من آية</label>
                       <Input
                         type="number"
                         min={1}
@@ -180,7 +176,7 @@ export default function QuranBrowser() {
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="text-xs text-muted-foreground mb-1 block">إلى آية</label>
+                      <label className="text-xs text-muted-foreground mb-1 block arabic-text">إلى آية</label>
                       <Input
                         type="number"
                         min={1}
@@ -195,15 +191,18 @@ export default function QuranBrowser() {
                   <Button
                     onClick={handleAddVerses}
                     disabled={isLoadingVerses}
-                    className="w-full bg-qudra hover:bg-qudra-dark text-white font-semibold"
+                    className="w-full btn-gold h-11 font-semibold"
                   >
                     {isLoadingVerses ? (
                       <>
                         <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                        جارٍ التحميل...
+                        <span className="arabic-text">جارٍ التحميل...</span>
                       </>
                     ) : (
-                      'إضافة الآيات'
+                      <>
+                        <Check className="w-4 h-4 ml-2" />
+                        <span className="arabic-text">إضافة الآيات</span>
+                      </>
                     )}
                   </Button>
                 </div>
@@ -213,10 +212,13 @@ export default function QuranBrowser() {
                 {filteredSurahs.map((surah) => (
                   <button
                     key={surah.id}
-                    onClick={() => setSelectedSurah(surah.id)}
-                    className="w-full flex items-center gap-3 px-4 py-3 border-b border-border/50 text-right hover:bg-secondary/50 transition-colors"
+                    onClick={() => {
+                      setSelectedSurah(surah.id);
+                      setToAyah(surah.ayahs.toString());
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 border-b border-border/30 text-right hover:bg-secondary/50 transition-colors group"
                   >
-                    <div className="w-9 h-9 rounded-full bg-qudra/10 flex items-center justify-center text-qudra font-bold text-xs flex-shrink-0">
+                    <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground font-bold text-xs flex-shrink-0 group-hover:bg-gold/10 group-hover:text-gold transition-colors">
                       {surah.id}
                     </div>
 
@@ -227,15 +229,15 @@ export default function QuranBrowser() {
                         </h3>
                         <span className="text-xs text-muted-foreground">{surah.nameEn}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">{surah.ayahs} آية</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{surah.ayahs} آية</p>
                     </div>
 
                     <Badge
                       variant="outline"
                       className={`text-[10px] flex-shrink-0 ${
                         surah.type === 'meccan'
-                          ? 'border-qudra/30 text-qudra'
-                          : 'border-sage/30 text-sage'
+                          ? 'border-gold/30 text-gold'
+                          : 'border-emerald/30 text-emerald'
                       }`}
                     >
                       {surah.type === 'meccan' ? 'مكية' : 'مدنية'}
@@ -246,7 +248,7 @@ export default function QuranBrowser() {
                 {filteredSurahs.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                     <Search className="w-10 h-10 mb-3 opacity-30" />
-                    <p className="text-sm">لم يتم العثور على نتائج</p>
+                    <p className="text-sm arabic-text">لم يتم العثور على نتائج</p>
                   </div>
                 )}
               </div>

@@ -29,13 +29,13 @@ import {
 } from '@/components/ui/accordion';
 import { Palette, Type, Film, Sparkles } from 'lucide-react';
 
-export default function DesignStep() {
+export default function DesignPanel() {
   const { design, updateDesign } = useAppStore();
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2 mb-3">
-        <Palette className="w-5 h-5 text-qudra" />
+        <Palette className="w-5 h-5 text-gold" />
         <h2 className="text-base font-bold text-foreground arabic-text">تخصيص التصميم</h2>
       </div>
 
@@ -48,12 +48,12 @@ export default function DesignStep() {
         <AccordionItem value="templates" className="border-border">
           <AccordionTrigger className="text-sm font-semibold text-foreground hover:no-underline py-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-qudra" />
+              <Sparkles className="w-4 h-4 text-gold" />
               <span className="arabic-text">القوالب</span>
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="grid grid-cols-2 gap-2 pt-1">
+            <div className="grid grid-cols-2 gap-2.5 pt-1">
               {videoTemplates.map((template) => (
                 <button
                   key={template.id}
@@ -66,22 +66,31 @@ export default function DesignStep() {
                       patternType: template.patternType,
                     })
                   }
-                  className={`rounded-xl p-3 text-right border-2 transition-all ${
+                  className={`group rounded-xl p-3 text-right border-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/30 ${
                     design.templateId === template.id
-                      ? 'border-qudra'
-                      : 'border-transparent hover:border-border'
+                      ? 'border-gold shadow-md shadow-gold/10'
+                      : 'border-transparent hover:border-border/80'
                   }`}
                   style={{ background: template.bg1 }}
                 >
                   {/* Color preview */}
                   <div className="flex gap-1 mb-2">
-                    <div className="h-1 flex-1 rounded-full" style={{ background: template.bg1 }} />
-                    <div className="h-1 flex-1 rounded-full" style={{ background: template.bg2 }} />
-                    <div className="h-1 w-4 rounded-full" style={{ background: template.accentColor }} />
+                    <div
+                      className="h-1 flex-1 rounded-full transition-opacity group-hover:opacity-80"
+                      style={{ background: template.bg1 }}
+                    />
+                    <div
+                      className="h-1 flex-1 rounded-full transition-opacity group-hover:opacity-80"
+                      style={{ background: template.bg2 }}
+                    />
+                    <div
+                      className="h-1 w-4 rounded-full transition-opacity group-hover:opacity-80"
+                      style={{ background: template.accentColor }}
+                    />
                   </div>
 
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-sm">{template.icon}</span>
+                    <span className="text-sm transition-transform duration-200 group-hover:scale-110 inline-block">{template.icon}</span>
                     <span className="text-[11px] font-semibold text-white/90 arabic-text">
                       {template.name}
                     </span>
@@ -99,7 +108,7 @@ export default function DesignStep() {
         <AccordionItem value="colors" className="border-border">
           <AccordionTrigger className="text-sm font-semibold text-foreground hover:no-underline py-3">
             <div className="flex items-center gap-2">
-              <Palette className="w-4 h-4 text-sage" />
+              <Palette className="w-4 h-4 text-emerald" />
               <span className="arabic-text">الألوان والزخارف</span>
             </div>
           </AccordionTrigger>
@@ -134,16 +143,18 @@ export default function DesignStep() {
                     اللون الأساسي
                   </Label>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={design.bg1}
-                      onChange={(e) => updateDesign({ bg1: e.target.value })}
-                      className="w-8 h-8 rounded-lg border border-border cursor-pointer bg-transparent"
-                    />
+                    <div className="relative">
+                      <input
+                        type="color"
+                        value={design.bg1}
+                        onChange={(e) => updateDesign({ bg1: e.target.value })}
+                        className="w-9 h-9 rounded-lg border-2 border-border cursor-pointer bg-transparent [&::-webkit-color-swatch-wrapper]:p-1 [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none"
+                      />
+                    </div>
                     <Input
                       value={design.bg1}
                       onChange={(e) => updateDesign({ bg1: e.target.value })}
-                      className="bg-secondary border-border text-foreground text-xs"
+                      className="bg-secondary border-border text-foreground text-xs font-mono"
                     />
                   </div>
                 </div>
@@ -152,16 +163,18 @@ export default function DesignStep() {
                     اللون الثانوي
                   </Label>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={design.bg2}
-                      onChange={(e) => updateDesign({ bg2: e.target.value })}
-                      className="w-8 h-8 rounded-lg border border-border cursor-pointer bg-transparent"
-                    />
+                    <div className="relative">
+                      <input
+                        type="color"
+                        value={design.bg2}
+                        onChange={(e) => updateDesign({ bg2: e.target.value })}
+                        className="w-9 h-9 rounded-lg border-2 border-border cursor-pointer bg-transparent [&::-webkit-color-swatch-wrapper]:p-1 [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none"
+                      />
+                    </div>
                     <Input
                       value={design.bg2}
                       onChange={(e) => updateDesign({ bg2: e.target.value })}
-                      className="bg-secondary border-border text-foreground text-xs"
+                      className="bg-secondary border-border text-foreground text-xs font-mono"
                     />
                   </div>
                 </div>
@@ -170,8 +183,10 @@ export default function DesignStep() {
               {/* Pattern density */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <Label className="text-xs text-muted-foreground arabic-text">كثافة الزخرفة</Label>
-                  <span className="text-xs text-qudra">{design.patternDensity}</span>
+                  <Label className="text-xs text-muted-foreground arabic-text">
+                    كثافة الزخرفة
+                  </Label>
+                  <span className="text-xs text-gold">{design.patternDensity}</span>
                 </div>
                 <Slider
                   value={[design.patternDensity]}
@@ -189,7 +204,7 @@ export default function DesignStep() {
                 <button
                   onClick={() => updateDesign({ showPattern: !design.showPattern })}
                   className={`w-10 h-5 rounded-full transition-all ${
-                    design.showPattern ? 'bg-qudra' : 'bg-secondary'
+                    design.showPattern ? 'bg-gold' : 'bg-secondary'
                   }`}
                 >
                   <div
@@ -231,7 +246,7 @@ export default function DesignStep() {
         <AccordionItem value="text" className="border-border">
           <AccordionTrigger className="text-sm font-semibold text-foreground hover:no-underline py-3">
             <div className="flex items-center gap-2">
-              <Type className="w-4 h-4 text-qudra" />
+              <Type className="w-4 h-4 text-gold" />
               <span className="arabic-text">إعدادات النص</span>
             </div>
           </AccordionTrigger>
@@ -272,6 +287,24 @@ export default function DesignStep() {
                 />
               </div>
 
+              {/* Font size slider */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <Label className="text-xs text-muted-foreground arabic-text">
+                    حجم الخط
+                  </Label>
+                  <span className="text-xs text-gold font-mono">{design.fontSize}px</span>
+                </div>
+                <Slider
+                  value={[design.fontSize]}
+                  onValueChange={([value]) => updateDesign({ fontSize: value })}
+                  min={14}
+                  max={48}
+                  step={1}
+                  className="py-2"
+                />
+              </div>
+
               {/* Text colors */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -279,16 +312,18 @@ export default function DesignStep() {
                     لون النص
                   </Label>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={design.textColor}
-                      onChange={(e) => updateDesign({ textColor: e.target.value })}
-                      className="w-8 h-8 rounded-lg border border-border cursor-pointer bg-transparent"
-                    />
+                    <div className="relative">
+                      <input
+                        type="color"
+                        value={design.textColor}
+                        onChange={(e) => updateDesign({ textColor: e.target.value })}
+                        className="w-9 h-9 rounded-lg border-2 border-border cursor-pointer bg-transparent [&::-webkit-color-swatch-wrapper]:p-1 [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none"
+                      />
+                    </div>
                     <Input
                       value={design.textColor}
                       onChange={(e) => updateDesign({ textColor: e.target.value })}
-                      className="bg-secondary border-border text-foreground text-xs"
+                      className="bg-secondary border-border text-foreground text-xs font-mono"
                     />
                   </div>
                 </div>
@@ -297,16 +332,18 @@ export default function DesignStep() {
                     لون مميز
                   </Label>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={design.accentTextColor}
-                      onChange={(e) => updateDesign({ accentTextColor: e.target.value })}
-                      className="w-8 h-8 rounded-lg border border-border cursor-pointer bg-transparent"
-                    />
+                    <div className="relative">
+                      <input
+                        type="color"
+                        value={design.accentTextColor}
+                        onChange={(e) => updateDesign({ accentTextColor: e.target.value })}
+                        className="w-9 h-9 rounded-lg border-2 border-border cursor-pointer bg-transparent [&::-webkit-color-swatch-wrapper]:p-1 [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none"
+                      />
+                    </div>
                     <Input
                       value={design.accentTextColor}
                       onChange={(e) => updateDesign({ accentTextColor: e.target.value })}
-                      className="bg-secondary border-border text-foreground text-xs"
+                      className="bg-secondary border-border text-foreground text-xs font-mono"
                     />
                   </div>
                 </div>
@@ -338,14 +375,14 @@ export default function DesignStep() {
 
               {/* Toggle options */}
               <div className="space-y-3">
-                {([
+                {[
                   { key: 'showAyahNumber' as const, label: 'رقم الآية' },
                   { key: 'showReaderName' as const, label: 'اسم القارئ' },
                   { key: 'showText' as const, label: 'إظهار النص' },
                   { key: 'showSurahName' as const, label: 'اسم السورة' },
                   { key: 'showProgressBar' as const, label: 'شريط التقدم' },
                   { key: 'showWatermark' as const, label: 'علامة مائية' },
-                ]).map((item) => (
+                ].map((item) => (
                   <div key={item.key} className="flex items-center justify-between">
                     <Label className="text-sm text-foreground arabic-text">{item.label}</Label>
                     <button
@@ -353,7 +390,7 @@ export default function DesignStep() {
                         updateDesign({ [item.key]: !design[item.key] })
                       }
                       className={`w-10 h-5 rounded-full transition-all ${
-                        design[item.key] ? 'bg-qudra' : 'bg-secondary'
+                        design[item.key] ? 'bg-gold' : 'bg-secondary'
                       }`}
                     >
                       <div
@@ -373,7 +410,7 @@ export default function DesignStep() {
         <AccordionItem value="cinematic" className="border-border">
           <AccordionTrigger className="text-sm font-semibold text-foreground hover:no-underline py-3">
             <div className="flex items-center gap-2">
-              <Film className="w-4 h-4 text-sage" />
+              <Film className="w-4 h-4 text-emerald" />
               <span className="arabic-text">إعدادات الفيديو</span>
             </div>
           </AccordionTrigger>

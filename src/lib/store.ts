@@ -1,21 +1,23 @@
 import { create } from "zustand";
 
 export type AppMode = "quran" | "hadith";
-export type AppStep = "content" | "voice" | "design" | "export";
+export type PanelTab = "content" | "voice" | "design" | "export";
 
 interface SelectedReader {
   id: string;
   name: string;
   qualityLabel: string;
   bitrate: string;
-  audioUrl: string;
+  audioId: string;
 }
 
-interface SelectedVerse {
+export interface SelectedVerse {
   surahId: number;
   surahName: string;
   ayahNumber: number;
   ayahText: string;
+  englishText?: string;
+  absoluteAyahNumber?: number;
 }
 
 interface VideoDesign {
@@ -27,6 +29,7 @@ interface VideoDesign {
   patternDensity: number;
   showPattern: boolean;
   fontType: string;
+  fontSize: number;
   customReaderName: string;
   textColor: string;
   accentTextColor: string;
@@ -45,7 +48,7 @@ interface VideoDesign {
 }
 
 interface VideoExport {
-  format: "mp4" | "turbo-mp4";
+  format: "mp4";
   preset: string;
   fps: string;
   crf: string;
@@ -59,14 +62,19 @@ interface HadithData {
   source: string;
 }
 
+interface AudioState {
+  isPlaying: boolean;
+  currentAyahIndex: number;
+  duration: number;
+  currentTime: number;
+}
+
 interface AppState {
-  // Mode & Step
+  // Mode & Panel
   appMode: AppMode;
   setAppMode: (mode: AppMode) => void;
-  currentStep: AppStep;
-  setCurrentStep: (step: AppStep) => void;
-  completedSteps: AppStep[];
-  markStepCompleted: (step: AppStep) => void;
+  activePanel: PanelTab;
+  setActivePanel: (panel: PanelTab) => void;
 
   // Quran browser
   showQuranBrowser: boolean;
@@ -75,14 +83,19 @@ interface AppState {
   // Reader
   selectedReader: SelectedReader | null;
   setSelectedReader: (reader: SelectedReader | null) => void;
-  isAudioPlaying: boolean;
-  setIsAudioPlaying: (playing: boolean) => void;
+
+  // Audio state
+  audioState: AudioState;
+  setAudioState: (updates: Partial<AudioState>) => void;
+  resetAudioState: () => void;
 
   // Verses
   selectedVerses: SelectedVerse[];
   addVerse: (verse: SelectedVerse) => void;
+  addVerses: (verses: SelectedVerse[]) => void;
   removeVerse: (surahId: number, ayahNumber: number) => void;
   clearVerses: () => void;
+  reorderVerses: (fromIndex: number, toIndex: number) => void;
 
   // Hadith
   hadithData: HadithData;
@@ -91,6 +104,7 @@ interface AppState {
   // Design
   design: VideoDesign;
   updateDesign: (updates: Partial<VideoDesign>) => void;
+  applyTemplate: (template: { id: string; bg1: string; bg2: string; accentColor: string; patternType: string }) => void;
 
   // Export
   exportSettings: VideoExport;
@@ -100,24 +114,17 @@ interface AppState {
   isRecording: boolean;
   setIsRecording: (recording: boolean) => void;
 
-  // Preview
-  previewKey: number;
-  refreshPreview: () => void;
+  // Export progress
+  exportProgress: number;
+  setExportProgress: (progress: number) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
-  // Mode & Step
+  // Mode & Panel
   appMode: "quran",
-  setAppMode: (mode) => set({ appMode: mode, currentStep: "content", completedSteps: [] }),
-  currentStep: "content",
-  setCurrentStep: (step) => set({ currentStep: step }),
-  completedSteps: [],
-  markStepCompleted: (step) =>
-    set((state) => ({
-      completedSteps: state.completedSteps.includes(step)
-        ? state.completedSteps
-        : [...state.completedSteps, step],
-    })),
+  setAppMode: (mode) => set({ appMode: mode, activePanel: "content", selectedVerses: [], hadithData: { category: "bukhari", text: "", narrator: "", source: "" } }),
+  activePanel: "content",
+  setActivePanel: (panel) => set({ activePanel: panel }),
 
   // Quran browser
   showQuranBrowser: false,
@@ -126,8 +133,18 @@ export const useAppStore = create<AppState>((set) => ({
   // Reader
   selectedReader: null,
   setSelectedReader: (reader) => set({ selectedReader: reader }),
-  isAudioPlaying: false,
-  setIsAudioPlaying: (playing) => set({ isAudioPlaying: playing }),
+
+  // Audio state
+  audioState: {
+    isPlaying: false,
+    currentAyahIndex: 0,
+    duration: 0,
+    currentTime: 0,
+  },
+  setAudioState: (updates) =>
+    set((state) => ({ audioState: { ...state.audioState, ...updates } })),
+  resetAudioState: () =>
+    set({ audioState: { isPlaying: false, currentAyahIndex: 0, duration: 0, currentTime: 0 } }),
 
   // Verses
   selectedVerses: [],
@@ -139,6 +156,16 @@ export const useAppStore = create<AppState>((set) => ({
       if (exists) return state;
       return { selectedVerses: [...state.selectedVerses, verse] };
     }),
+  addVerses: (verses) =>
+    set((state) => {
+      const existingKeys = new Set(
+        state.selectedVerses.map((v) => `${v.surahId}:${v.ayahNumber}`)
+      );
+      const newVerses = verses.filter(
+        (v) => !existingKeys.has(`${v.surahId}:${v.ayahNumber}`)
+      );
+      return { selectedVerses: [...state.selectedVerses, ...newVerses] };
+    }),
   removeVerse: (surahId, ayahNumber) =>
     set((state) => ({
       selectedVerses: state.selectedVerses.filter(
@@ -146,6 +173,13 @@ export const useAppStore = create<AppState>((set) => ({
       ),
     })),
   clearVerses: () => set({ selectedVerses: [] }),
+  reorderVerses: (fromIndex, toIndex) =>
+    set((state) => {
+      const newVerses = [...state.selectedVerses];
+      const [removed] = newVerses.splice(fromIndex, 1);
+      newVerses.splice(toIndex, 0, removed);
+      return { selectedVerses: newVerses };
+    }),
 
   // Hadith
   hadithData: {
@@ -159,18 +193,19 @@ export const useAppStore = create<AppState>((set) => ({
 
   // Design
   design: {
-    templateId: "night-sky",
-    bg1: "#0f1419",
-    bg2: "#1a1a2e",
-    accentColor: "#c96442",
-    patternType: "geometric",
-    patternDensity: 3,
+    templateId: "noor",
+    bg1: "#0a0a0c",
+    bg2: "#12121a",
+    accentColor: "#c9a84c",
+    patternType: "arabic",
+    patternDensity: 4,
     showPattern: true,
-    fontType: "naskh",
+    fontType: "amiri",
+    fontSize: 28,
     customReaderName: "",
-    textColor: "#e7e9ea",
-    accentTextColor: "#c96442",
-    textStyle: "normal",
+    textColor: "#f4f4f5",
+    accentTextColor: "#c9a84c",
+    textStyle: "with-shadow",
     showAyahNumber: true,
     showReaderName: true,
     showText: true,
@@ -185,6 +220,17 @@ export const useAppStore = create<AppState>((set) => ({
   },
   updateDesign: (updates) =>
     set((state) => ({ design: { ...state.design, ...updates } })),
+  applyTemplate: (template) =>
+    set((state) => ({
+      design: {
+        ...state.design,
+        templateId: template.id,
+        bg1: template.bg1,
+        bg2: template.bg2,
+        accentColor: template.accentColor,
+        patternType: template.patternType,
+      },
+    })),
 
   // Export
   exportSettings: {
@@ -203,7 +249,7 @@ export const useAppStore = create<AppState>((set) => ({
   isRecording: false,
   setIsRecording: (recording) => set({ isRecording: recording }),
 
-  // Preview
-  previewKey: 0,
-  refreshPreview: () => set((state) => ({ previewKey: state.previewKey + 1 })),
+  // Export progress
+  exportProgress: 0,
+  setExportProgress: (progress) => set({ exportProgress: progress }),
 }));

@@ -8,6 +8,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-cairo: 'Cairo', sans-serif;
+  --font-amiri: 'Amiri', serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -41,47 +43,48 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-qudra: #c96442;
-  --color-qudra-light: #d4734e;
-  --color-qudra-dark: #a85235;
-  --color-sage: #7c9a82;
-  --color-sage-light: #8b9e8f;
-  --color-sage-dark: #6b8a72;
+  --color-gold: #c9a84c;
+  --color-gold-light: #d4ba6a;
+  --color-gold-dark: #a88e3a;
+  --color-gold-muted: rgba(201, 168, 76, 0.1);
+  --color-emerald: #4a9e7a;
+  --color-emerald-light: #5ab88e;
+  --color-emerald-dark: #3a8266;
 }
 
 :root {
   --radius: 0.75rem;
-  --background: #0f1419;
-  --foreground: #e7e9ea;
-  --card: #1a1f25;
-  --card-foreground: #e7e9ea;
-  --popover: #1a1f25;
-  --popover-foreground: #e7e9ea;
-  --primary: #c96442;
-  --primary-foreground: #ffffff;
-  --secondary: #1e2530;
-  --secondary-foreground: #e7e9ea;
-  --muted: #1e2530;
-  --muted-foreground: #71767b;
-  --accent: #7c9a82;
-  --accent-foreground: #ffffff;
-  --destructive: #f4212e;
-  --border: #2f3336;
-  --input: #2f3336;
-  --ring: #c96442;
-  --chart-1: #c96442;
-  --chart-2: #7c9a82;
-  --chart-3: #d4734e;
-  --chart-4: #8b9e8f;
-  --chart-5: #a85235;
-  --sidebar: #0f1419;
-  --sidebar-foreground: #e7e9ea;
-  --sidebar-primary: #c96442;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e2530;
-  --sidebar-accent-foreground: #e7e9ea;
-  --sidebar-border: #2f3336;
-  --sidebar-ring: #c96442;
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --card: #131316;
+  --card-foreground: #f4f4f5;
+  --popover: #131316;
+  --popover-foreground: #f4f4f5;
+  --primary: #c9a84c;
+  --primary-foreground: #09090b;
+  --secondary: #1a1a1f;
+  --secondary-foreground: #f4f4f5;
+  --muted: #1a1a1f;
+  --muted-foreground: #71717a;
+  --accent: #4a9e7a;
+  --accent-foreground: #f4f4f5;
+  --destructive: #ef4444;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #c9a84c;
+  --chart-1: #c9a84c;
+  --chart-2: #4a9e7a;
+  --chart-3: #d4ba6a;
+  --chart-4: #5ab88e;
+  --chart-5: #a88e3a;
+  --sidebar: #09090b;
+  --sidebar-foreground: #f4f4f5;
+  --sidebar-primary: #c9a84c;
+  --sidebar-primary-foreground: #09090b;
+  --sidebar-accent: #1a1a1f;
+  --sidebar-accent-foreground: #f4f4f5;
+  --sidebar-border: #27272a;
+  --sidebar-ring: #c9a84c;
 }
 
 @layer base {
@@ -95,62 +98,109 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2f3336;
-  border-radius: 3px;
+  background: #27272a;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f4346;
+  background: #3f3f46;
 }
 
-/* Arabic text optimization */
+/* Arabic text rendering */
 .arabic-text {
+  font-family: 'Cairo', 'Amiri', sans-serif;
   font-feature-settings: "liga" 1, "calt" 1;
   text-rendering: optimizeLegibility;
   line-height: 1.8;
 }
 
-/* Qudra Studio specific */
-.qudra-gradient {
-  background: linear-gradient(135deg, #c96442 0%, #a85235 100%);
+.arabic-quran {
+  font-family: 'Amiri', 'Cairo', serif;
+  font-feature-settings: "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+  line-height: 2.2;
 }
 
-.qudra-glow {
-  box-shadow: 0 0 20px rgba(201, 100, 66, 0.15), 0 0 40px rgba(201, 100, 66, 0.05);
+/* Gold accent utilities */
+.gold-gradient {
+  background: linear-gradient(135deg, #c9a84c 0%, #d4ba6a 50%, #c9a84c 100%);
 }
 
-.sage-glow {
-  box-shadow: 0 0 20px rgba(124, 154, 130, 0.15), 0 0 40px rgba(124, 154, 130, 0.05);
+.gold-text {
+  background: linear-gradient(135deg, #c9a84c 0%, #d4ba6a 50%, #c9a84c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Step indicator */
-.step-dot {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.gold-glow {
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.15), 0 0 60px rgba(201, 168, 76, 0.05);
 }
 
-.step-dot.active {
-  background: #c96442;
-  box-shadow: 0 0 8px rgba(201, 100, 66, 0.4);
+.gold-border {
+  border-color: rgba(201, 168, 76, 0.3);
 }
 
-.step-dot.completed {
-  background: #7c9a82;
-}
-
-/* Subtle surface */
+/* Surface styles */
 .surface {
-  background: #1a1f25;
-  border: 1px solid #2f3336;
+  background: #131316;
+  border: 1px solid #27272a;
+  border-radius: 12px;
 }
 
-.surface-hover:hover {
-  background: #1e2530;
+.surface-elevated {
+  background: #1a1a1f;
+  border: 1px solid #27272a;
+  border-radius: 12px;
+}
+
+.surface-glass {
+  background: rgba(19, 19, 22, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 168, 76, 0.1);
+  border-radius: 12px;
+}
+
+/* Button styles */
+.btn-gold {
+  background: linear-gradient(135deg, #c9a84c 0%, #a88e3a 100%);
+  color: #09090b;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-gold:hover {
+  background: linear-gradient(135deg, #d4ba6a 0%, #c9a84c 100%);
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.3);
+}
+
+/* Audio wave animation */
+@keyframes audio-wave {
+  0%, 100% { height: 3px; }
+  50% { height: 14px; }
+}
+
+.audio-bar {
+  animation: audio-wave 1.2s ease-in-out infinite;
+}
+.audio-bar:nth-child(2) { animation-delay: 0.1s; }
+.audio-bar:nth-child(3) { animation-delay: 0.2s; }
+.audio-bar:nth-child(4) { animation-delay: 0.3s; }
+.audio-bar:nth-child(5) { animation-delay: 0.4s; }
+
+/* Pulse glow */
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(201, 168, 76, 0); }
+}
+
+.pulse-gold {
+  animation: pulse-gold 2s ease-in-out infinite;
 }
 
 /* Video preview aspect ratios */
@@ -159,28 +209,59 @@
 .aspect-1-1 { aspect-ratio: 1/1; }
 .aspect-4-5 { aspect-ratio: 4/5; }
 
-/* Audio wave animation */
-@keyframes audio-wave {
-  0%, 100% { height: 4px; }
-  50% { height: 16px; }
+/* Fade in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.audio-bar {
-  animation: audio-wave 1s ease-in-out infinite;
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
 
-.audio-bar:nth-child(2) { animation-delay: 0.1s; }
-.audio-bar:nth-child(3) { animation-delay: 0.2s; }
-.audio-bar:nth-child(4) { animation-delay: 0.3s; }
-.audio-bar:nth-child(5) { animation-delay: 0.4s; }
-
-/* Smooth page transitions */
-.page-enter {
-  opacity: 0;
-  transform: translateX(-8px);
+/* Shimmer loading */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-.page-enter-active {
-  opacity: 1;
-  transform: translateX(0);
-  transition: all 0.25s ease-out;
+
+.shimmer {
+  background: linear-gradient(90deg, #131316 25%, #1a1a1f 50%, #131316 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Toggle switch */
+.toggle-track {
+  transition: background-color 0.2s ease;
+}
+.toggle-track.active {
+  background-color: #c9a84c;
+}
+.toggle-thumb {
+  transition: transform 0.2s ease;
+}
+.toggle-track.active .toggle-thumb {
+  transform: translateX(-18px);
+}
+
+/* Progress bar */
+@keyframes progress-flow {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* Quranic verse decorative frame */
+.verse-frame {
+  position: relative;
+}
+.verse-frame::before,
+.verse-frame::after {
+  content: '﴿';
+  font-family: 'Amiri', serif;
+  color: rgba(201, 168, 76, 0.4);
+  font-size: 1.2em;
+}
+.verse-frame::after {
+  content: '﴾';
 }
