@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useAppStore, type PanelTab } from '@/lib/store';
 import ContentPanel from '@/components/panels/ContentPanel';
 import VoicePanel from '@/components/panels/VoicePanel';
@@ -28,11 +29,12 @@ const tabs: { id: PanelTab; label: string; icon: typeof BookOpen }[] = [
 
 export default function QudraStudio() {
   const { appMode, setAppMode, activePanel, setActivePanel } = useAppStore();
+  const [showQuranBrowser, setShowQuranBrowser] = useState(false);
 
   const renderPanel = () => {
     switch (activePanel) {
       case 'content':
-        return <ContentPanel />;
+        return <ContentPanel onBrowseQuran={() => setShowQuranBrowser(true)} />;
       case 'voice':
         return <VoicePanel />;
       case 'design':
@@ -181,7 +183,7 @@ export default function QudraStudio() {
       </footer>
 
       {/* Quran Browser Modal */}
-      <QuranBrowser />
+      <QuranBrowser open={showQuranBrowser} onOpenChange={setShowQuranBrowser} />
     </div>
   );
 }

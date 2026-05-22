@@ -6,17 +6,12 @@ export interface Surah {
   type: "meccan" | "medinan";
 }
 
-export interface ReaderQuality {
-  label: string;
-  bitrate: string;
-  audioId: string;
-}
-
 export interface Reader {
   id: string;
   name: string;
   nameEn: string;
-  qualities: ReaderQuality[];
+  recitationId: number; // Quran.com recitation ID
+  qualities: { label: string; bitrate: string; audioId: string }[];
 }
 
 export const surahs: Surah[] = [
@@ -136,11 +131,13 @@ export const surahs: Surah[] = [
   { id: 114, name: "الناس", nameEn: "An-Nas", ayahs: 6, type: "meccan" },
 ];
 
+// Readers with Quran.com recitation IDs
 export const readers: Reader[] = [
   {
     id: "ar.alafasy",
     name: "مشاري العفاسي",
     nameEn: "Mishary Al-Afasy",
+    recitationId: 7,
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.alafasy" },
     ],
@@ -149,6 +146,7 @@ export const readers: Reader[] = [
     id: "ar.abdulbasitmurattal",
     name: "عبد الباسط عبد الصمد",
     nameEn: "Abdul Basit (Murattal)",
+    recitationId: 1,
     qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.abdulbasitmurattal" },
     ],
@@ -157,6 +155,7 @@ export const readers: Reader[] = [
     id: "ar.abdulbasitmujawwad",
     name: "عبد الباسط (مجود)",
     nameEn: "Abdul Basit (Mujawwad)",
+    recitationId: 1,
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.abdulbasitmujawwad" },
     ],
@@ -165,6 +164,7 @@ export const readers: Reader[] = [
     id: "ar.sudais",
     name: "عبد الرحمن السديس",
     nameEn: "Abdurrahman As-Sudais",
+    recitationId: 4,
     qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.sudais" },
     ],
@@ -173,6 +173,7 @@ export const readers: Reader[] = [
     id: "ar.shaatree",
     name: "أبو بكر الشاطري",
     nameEn: "Abu Bakr Ash-Shatri",
+    recitationId: 3,
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.shaatree" },
     ],
@@ -181,6 +182,7 @@ export const readers: Reader[] = [
     id: "ar.ahmedajamy",
     name: "أحمد العجمي",
     nameEn: "Ahmed Al-Ajmy",
+    recitationId: 2,
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.ahmedajamy" },
     ],
@@ -189,6 +191,7 @@ export const readers: Reader[] = [
     id: "ar.saaborimuneer",
     name: "سعود الشريم",
     nameEn: "Saood Ash-Shuraym",
+    recitationId: 9,
     qualities: [
       { label: "64kbps", bitrate: "64kbps", audioId: "ar.saaborimuneer" },
     ],
@@ -197,6 +200,7 @@ export const readers: Reader[] = [
     id: "ar.hanirifai",
     name: "هاني الرفاعي",
     nameEn: "Hani Ar-Rifai",
+    recitationId: 16,
     qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.hanirifai" },
     ],
@@ -205,6 +209,7 @@ export const readers: Reader[] = [
     id: "ar.husary",
     name: "محمود خليل الحصري",
     nameEn: "Mahmoud Khalil Al-Husary",
+    recitationId: 5,
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.husary" },
     ],
@@ -213,6 +218,7 @@ export const readers: Reader[] = [
     id: "ar.hudhaify",
     name: "علي الحذيفي",
     nameEn: "Ali Al-Hudhaify",
+    recitationId: 8,
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.hudhaify" },
     ],
@@ -221,6 +227,7 @@ export const readers: Reader[] = [
     id: "ar.mahermuaiqly",
     name: "ماهر المعيقلي",
     nameEn: "Maher Al-Muaiqly",
+    recitationId: 10,
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.mahermuaiqly" },
     ],
@@ -229,6 +236,7 @@ export const readers: Reader[] = [
     id: "ar.minshawi",
     name: "محمد صديق المنشاوي",
     nameEn: "Muhammad Siddiq Al-Minshawi",
+    recitationId: 6,
     qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.minshawi" },
     ],
@@ -237,6 +245,7 @@ export const readers: Reader[] = [
     id: "ar.abdullahbasfar",
     name: "عبد الله بصفر",
     nameEn: "Abdullah Basfar",
+    recitationId: 11,
     qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.abdullahbasfar" },
     ],
@@ -245,13 +254,14 @@ export const readers: Reader[] = [
     id: "ar.aymanswaid",
     name: "أيمن سويد",
     nameEn: "Ayman Suwayd",
+    recitationId: 22,
     qualities: [
       { label: "64kbps", bitrate: "64kbps", audioId: "ar.aymanswaid" },
     ],
   },
 ];
 
-// Qudra Studio Templates - Completely Unique Design Identity
+// Qudra Studio Templates - Arabic-Themed Design Identity
 export const videoTemplates = [
   {
     id: "noor",
@@ -379,11 +389,28 @@ export const aspectRatios = [
   { id: "4:5", name: "4:5", desc: "Instagram Feed", width: 1080, height: 1350 },
 ];
 
-export const videoEffects = [
-  { id: "none", name: "بدون تأثير" },
+export const imageMotionOptions = [
+  { id: "none", name: "بدون حركة" },
+  { id: "zoom-in", name: "تكبير تدريجي" },
+  { id: "zoom-out", name: "تصغير تدريجي" },
+  { id: "ken-burns", name: "كين بيرنز" },
+  { id: "pan", name: "تحريك أفقي" },
+];
+
+export const transitionTypes = [
   { id: "fade", name: "تلاشي" },
   { id: "slide", name: "انزلاق" },
   { id: "zoom", name: "تكبير" },
+  { id: "none", name: "بدون انتقال" },
+];
+
+// Alias for backward compatibility with DesignPanel
+export const videoEffects = transitionTypes;
+
+export const textPositionOptions = [
+  { id: "center", name: "وسط" },
+  { id: "top", name: "أعلى" },
+  { id: "bottom", name: "أسفل" },
 ];
 
 export const videoPresets = [
@@ -404,11 +431,10 @@ export const textStyleOptions = [
   { id: "outlined", name: "محاط" },
 ];
 
-export const imageMotionOptions = [
-  { id: "none", name: "بدون حركة" },
-  { id: "zoom-in", name: "تكبير تدريجي" },
-  { id: "zoom-out", name: "تصغير تدريجي" },
-  { id: "ken-burns", name: "كين بيرنز" },
+export const qualityOptions = [
+  { id: "high", name: "عالية" },
+  { id: "medium", name: "متوسطة" },
+  { id: "low", name: "منخفضة" },
 ];
 
 export const crfOptions = [
@@ -431,7 +457,6 @@ export const hadithCollections = [
 
 // Helper: Build audio URL for a specific ayah using the Islamic Network CDN
 export function getAudioUrl(audioId: string, surahNumber: number, ayahNumber: number): string {
-  // Calculate the absolute ayah number
   const surahAyahOffsets = [0, 7, 293, 493, 669, 789, 954, 1160, 1234, 1363, 1492, 1615, 1728, 1771, 1823, 1922, 2050, 2161, 2272, 2370, 2505, 2617, 2695, 2813, 2877, 2954, 3059, 3152, 3240, 3329, 3389, 3423, 3453, 3526, 3580, 3625, 3708, 3890, 3978, 4053, 4107, 4161, 4250, 4339, 4398, 4435, 4470, 4508, 4527, 4572, 4632, 4692, 4754, 4809, 4864, 4942, 5038, 5067, 5089, 5102, 5115, 5129, 5143, 5154, 5165, 5177, 5189, 5201, 5212, 5223, 5234, 5244, 5254, 5264, 5274, 5284, 5294, 5304, 5314, 5324, 5334, 5344, 5354, 5364, 5374, 5384, 5394, 5404, 5414, 5424, 5434, 5444, 5454, 5464, 5474, 5484, 5494, 5504, 5514, 5524, 5534, 5544, 5554, 5564, 5574, 5584, 5594, 5604, 5614, 5624, 5634, 5644, 5654, 5664, 5674, 5684, 5694, 5704, 5714, 5724, 5734, 5744, 5754, 5764, 5774, 5784, 5794, 5804, 5814, 5824, 5834, 5844, 5854, 5864, 5874, 5884, 5894, 5904, 5914, 5924, 5934, 5944, 5954, 5964, 5974, 5984, 5994, 6004, 6014, 6024, 6034, 6044, 6054, 6064, 6114, 6118, 6124, 6130, 6135, 6140, 6147, 6152, 6157, 6164, 6168, 6176, 6181, 6186, 6192, 6197, 6202, 6207, 6213, 6218, 6223, 6229, 6234, 6236];
   
   const absoluteAyah = surahAyahOffsets[surahNumber - 1] + ayahNumber;
@@ -441,6 +466,11 @@ export function getAudioUrl(audioId: string, surahNumber: number, ayahNumber: nu
 // Helper: Get ayah text from API
 export function getAyahApiUrl(surahNumber: number, ayahNumber: number): string {
   return `https://api.alquran.cloud/v1/ayah/${surahNumber}:${ayahNumber}`;
+}
+
+// Helper: Build Quran.com audio URL using recitation ID
+export function getQuranComAudioUrl(recitationId: number, chapterNumber: number): string {
+  return `https://api.quran.com/api/v4/recitations/${recitationId}/by_chapter/${chapterNumber}`;
 }
 
 // Get pattern CSS background

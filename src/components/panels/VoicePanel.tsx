@@ -24,16 +24,17 @@ type AudioSource = 'reader' | 'upload' | 'record';
 
 export default function VoicePanel() {
   const {
-    selectedReader,
-    setSelectedReader,
-    isRecording,
-    setIsRecording,
+    quranProject,
+    updateQuranProject,
   } = useAppStore();
 
   const [audioSource, setAudioSource] = useState<AudioSource>('reader');
   const [readerSearch, setReaderSearch] = useState('');
   const [playingPreview, setPlayingPreview] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const selectedReader = quranProject?.reader ?? null;
 
   const filteredReaders = readers.filter(
     (r) =>
@@ -82,12 +83,14 @@ export default function VoicePanel() {
 
   const handleSelectReader = (reader: (typeof readers)[0]) => {
     const firstQuality = reader.qualities[0];
-    setSelectedReader({
-      id: reader.id,
-      name: reader.name,
-      qualityLabel: firstQuality.label,
-      bitrate: firstQuality.bitrate,
-      audioId: firstQuality.audioId,
+    updateQuranProject({
+      reader: {
+        id: reader.id,
+        name: reader.name,
+        nameEn: reader.nameEn,
+        recitationId: reader.recitationId,
+        qualityLabel: firstQuality.label,
+      },
     });
     toast.success(`تم اختيار ${reader.name}`);
   };
@@ -216,6 +219,7 @@ export default function VoicePanel() {
                   <span className="text-sm font-medium text-foreground arabic-text">
                     {selectedReader.name}
                   </span>
+                  <span className="text-[10px] text-muted-foreground/60">{selectedReader.nameEn}</span>
                 </div>
                 <Badge
                   variant="outline"

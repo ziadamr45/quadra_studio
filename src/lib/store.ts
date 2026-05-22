@@ -3,24 +3,22 @@ import { create } from "zustand";
 export type AppMode = "quran" | "hadith";
 export type PanelTab = "content" | "voice" | "design" | "export";
 
-interface SelectedReader {
+export interface AyahTimestamp {
+  numberInSurah: number;
+  text: string;
+  startTime: number; // in seconds
+  endTime: number;   // in seconds
+}
+
+export interface SelectedReader {
   id: string;
   name: string;
+  nameEn: string;
+  recitationId: number; // Quran.com recitation ID
   qualityLabel: string;
-  bitrate: string;
-  audioId: string;
 }
 
-export interface SelectedVerse {
-  surahId: number;
-  surahName: string;
-  ayahNumber: number;
-  ayahText: string;
-  englishText?: string;
-  absoluteAyahNumber?: number;
-}
-
-interface VideoDesign {
+export interface VideoDesign {
   templateId: string;
   bg1: string;
   bg2: string;
@@ -28,45 +26,51 @@ interface VideoDesign {
   patternType: string;
   patternDensity: number;
   showPattern: boolean;
-  fontType: string;
+  fontType: string; // "amiri" | "cairo" | "naskh" | "thuluth" | "kufi"
   fontSize: number;
-  customReaderName: string;
   textColor: string;
   accentTextColor: string;
-  textStyle: string;
+  textStyle: string; // "normal" | "bold" | "with-shadow" | "outlined"
   showAyahNumber: boolean;
   showReaderName: boolean;
-  showText: boolean;
   showSurahName: boolean;
   showProgressBar: boolean;
-  aspectRatio: string;
-  videoEffect: string;
-  showEnglishTranslation: boolean;
-  customTexts: string[];
-  imageMotion: string;
+  aspectRatio: string; // "9:16" | "16:9" | "1:1" | "4:5"
+  imageMotion: string; // "none" | "zoom-in" | "zoom-out" | "ken-burns" | "pan"
+  backgroundImage: string; // URL or empty
   showWatermark: boolean;
+  transitionType: string; // "fade" | "slide" | "zoom" | "none"
+  transitionDuration: number; // in seconds
+  textPosition: string; // "center" | "top" | "bottom"
 }
 
-interface VideoExport {
+export interface VideoExport {
   format: "mp4";
-  preset: string;
-  fps: string;
-  crf: string;
-  enableCinematicAudio: boolean;
+  preset: string; // "1080p" | "720p" | "480p"
+  fps: number; // 24 | 30
+  quality: string; // "high" | "medium" | "low"
 }
 
-interface HadithData {
-  category: string;
+export interface HadithData {
+  collection: string;
+  hadithNumber: number;
   text: string;
   narrator: string;
-  source: string;
+  grade: string;
 }
 
-interface AudioState {
-  isPlaying: boolean;
-  currentAyahIndex: number;
-  duration: number;
-  currentTime: number;
+export interface QuranProject {
+  surahId: number | null;
+  surahName: string;
+  surahNameEn: string;
+  ayahFrom: number;
+  ayahTo: number;
+  reader: SelectedReader | null;
+  ayahs: AyahTimestamp[];
+  audioUrl: string;
+  totalDuration: number; // in seconds
+  isLoading: boolean;
+  error: string | null;
 }
 
 interface AppState {
@@ -76,26 +80,10 @@ interface AppState {
   activePanel: PanelTab;
   setActivePanel: (panel: PanelTab) => void;
 
-  // Quran browser
-  showQuranBrowser: boolean;
-  setShowQuranBrowser: (show: boolean) => void;
-
-  // Reader
-  selectedReader: SelectedReader | null;
-  setSelectedReader: (reader: SelectedReader | null) => void;
-
-  // Audio state
-  audioState: AudioState;
-  setAudioState: (updates: Partial<AudioState>) => void;
-  resetAudioState: () => void;
-
-  // Verses
-  selectedVerses: SelectedVerse[];
-  addVerse: (verse: SelectedVerse) => void;
-  addVerses: (verses: SelectedVerse[]) => void;
-  removeVerse: (surahId: number, ayahNumber: number) => void;
-  clearVerses: () => void;
-  reorderVerses: (fromIndex: number, toIndex: number) => void;
+  // Quran Project
+  quranProject: QuranProject;
+  updateQuranProject: (updates: Partial<QuranProject>) => void;
+  resetQuranProject: () => void;
 
   // Hadith
   hadithData: HadithData;
@@ -110,116 +98,111 @@ interface AppState {
   exportSettings: VideoExport;
   updateExportSettings: (updates: Partial<VideoExport>) => void;
 
-  // Recording
-  isRecording: boolean;
-  setIsRecording: (recording: boolean) => void;
+  // Playback
+  isPlaying: boolean;
+  setIsPlaying: (playing: boolean) => void;
+  currentTime: number;
+  setCurrentTime: (time: number) => void;
+  currentAyahIndex: number;
+  setCurrentAyahIndex: (index: number) => void;
 
   // Export progress
+  isExporting: boolean;
+  setIsExporting: (exporting: boolean) => void;
   exportProgress: number;
   setExportProgress: (progress: number) => void;
 }
 
+const defaultQuranProject: QuranProject = {
+  surahId: null,
+  surahName: "",
+  surahNameEn: "",
+  ayahFrom: 1,
+  ayahTo: 7,
+  reader: null,
+  ayahs: [],
+  audioUrl: "",
+  totalDuration: 0,
+  isLoading: false,
+  error: null,
+};
+
+const defaultDesign: VideoDesign = {
+  templateId: "noor",
+  bg1: "#0a0a0c",
+  bg2: "#12121a",
+  accentColor: "#c9a84c",
+  patternType: "arabic",
+  patternDensity: 4,
+  showPattern: true,
+  fontType: "amiri",
+  fontSize: 28,
+  textColor: "#f4f4f5",
+  accentTextColor: "#c9a84c",
+  textStyle: "with-shadow",
+  showAyahNumber: true,
+  showReaderName: true,
+  showSurahName: true,
+  showProgressBar: true,
+  aspectRatio: "9:16",
+  imageMotion: "none",
+  backgroundImage: "",
+  showWatermark: true,
+  transitionType: "fade",
+  transitionDuration: 0.3,
+  textPosition: "center",
+};
+
+const defaultExport: VideoExport = {
+  format: "mp4",
+  preset: "1080p",
+  fps: 30,
+  quality: "high",
+};
+
+const defaultHadith: HadithData = {
+  collection: "bukhari",
+  hadithNumber: 0,
+  text: "",
+  narrator: "",
+  grade: "",
+};
+
 export const useAppStore = create<AppState>((set) => ({
   // Mode & Panel
   appMode: "quran",
-  setAppMode: (mode) => set({ appMode: mode, activePanel: "content", selectedVerses: [], hadithData: { category: "bukhari", text: "", narrator: "", source: "" } }),
+  setAppMode: (mode) =>
+    set({
+      appMode: mode,
+      activePanel: "content",
+      quranProject: { ...defaultQuranProject },
+      hadithData: { ...defaultHadith },
+    }),
   activePanel: "content",
   setActivePanel: (panel) => set({ activePanel: panel }),
 
-  // Quran browser
-  showQuranBrowser: false,
-  setShowQuranBrowser: (show) => set({ showQuranBrowser: show }),
-
-  // Reader
-  selectedReader: null,
-  setSelectedReader: (reader) => set({ selectedReader: reader }),
-
-  // Audio state
-  audioState: {
-    isPlaying: false,
-    currentAyahIndex: 0,
-    duration: 0,
-    currentTime: 0,
-  },
-  setAudioState: (updates) =>
-    set((state) => ({ audioState: { ...state.audioState, ...updates } })),
-  resetAudioState: () =>
-    set({ audioState: { isPlaying: false, currentAyahIndex: 0, duration: 0, currentTime: 0 } }),
-
-  // Verses
-  selectedVerses: [],
-  addVerse: (verse) =>
-    set((state) => {
-      const exists = state.selectedVerses.find(
-        (v) => v.surahId === verse.surahId && v.ayahNumber === verse.ayahNumber
-      );
-      if (exists) return state;
-      return { selectedVerses: [...state.selectedVerses, verse] };
-    }),
-  addVerses: (verses) =>
-    set((state) => {
-      const existingKeys = new Set(
-        state.selectedVerses.map((v) => `${v.surahId}:${v.ayahNumber}`)
-      );
-      const newVerses = verses.filter(
-        (v) => !existingKeys.has(`${v.surahId}:${v.ayahNumber}`)
-      );
-      return { selectedVerses: [...state.selectedVerses, ...newVerses] };
-    }),
-  removeVerse: (surahId, ayahNumber) =>
+  // Quran Project
+  quranProject: { ...defaultQuranProject },
+  updateQuranProject: (updates) =>
     set((state) => ({
-      selectedVerses: state.selectedVerses.filter(
-        (v) => !(v.surahId === surahId && v.ayahNumber === ayahNumber)
-      ),
+      quranProject: { ...state.quranProject, ...updates },
     })),
-  clearVerses: () => set({ selectedVerses: [] }),
-  reorderVerses: (fromIndex, toIndex) =>
-    set((state) => {
-      const newVerses = [...state.selectedVerses];
-      const [removed] = newVerses.splice(fromIndex, 1);
-      newVerses.splice(toIndex, 0, removed);
-      return { selectedVerses: newVerses };
-    }),
+  resetQuranProject: () =>
+    set({ quranProject: { ...defaultQuranProject } }),
 
   // Hadith
-  hadithData: {
-    category: "bukhari",
-    text: "",
-    narrator: "",
-    source: "",
-  },
+  hadithData: { ...defaultHadith },
   updateHadithData: (updates) =>
-    set((state) => ({ hadithData: { ...state.hadithData, ...updates } })),
+    set((state) => ({
+      hadithData: { ...state.hadithData, ...updates },
+    })),
 
   // Design
-  design: {
-    templateId: "noor",
-    bg1: "#0a0a0c",
-    bg2: "#12121a",
-    accentColor: "#c9a84c",
-    patternType: "arabic",
-    patternDensity: 4,
-    showPattern: true,
-    fontType: "amiri",
-    fontSize: 28,
-    customReaderName: "",
-    textColor: "#f4f4f5",
-    accentTextColor: "#c9a84c",
-    textStyle: "with-shadow",
-    showAyahNumber: true,
-    showReaderName: true,
-    showText: true,
-    showSurahName: true,
-    showProgressBar: true,
-    aspectRatio: "9:16",
-    videoEffect: "none",
-    showEnglishTranslation: false,
-    customTexts: [],
-    imageMotion: "none",
-    showWatermark: true,
-  },
+  design: { ...defaultDesign },
   updateDesign: (updates) =>
-    set((state) => ({ design: { ...state.design, ...updates } })),
+    set((state) => ({
+      design: { ...state.design, ...updates },
+    })),
   applyTemplate: (template) =>
     set((state) => ({
       design: {
@@ -233,23 +216,23 @@ export const useAppStore = create<AppState>((set) => ({
     })),
 
   // Export
-  exportSettings: {
-    format: "mp4",
-    preset: "1080p",
-    fps: "30",
-    crf: "23",
-    enableCinematicAudio: false,
-  },
+  exportSettings: { ...defaultExport },
   updateExportSettings: (updates) =>
     set((state) => ({
       exportSettings: { ...state.exportSettings, ...updates },
     })),
 
-  // Recording
-  isRecording: false,
-  setIsRecording: (recording) => set({ isRecording: recording }),
+  // Playback
+  isPlaying: false,
+  setIsPlaying: (playing) => set({ isPlaying: playing }),
+  currentTime: 0,
+  setCurrentTime: (time) => set({ currentTime: time }),
+  currentAyahIndex: 0,
+  setCurrentAyahIndex: (index) => set({ currentAyahIndex: index }),
 
   // Export progress
+  isExporting: false,
+  setIsExporting: (exporting) => set({ isExporting: exporting }),
   exportProgress: 0,
   setExportProgress: (progress) => set({ exportProgress: progress }),
 }));

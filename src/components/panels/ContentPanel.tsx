@@ -15,34 +15,131 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Book, Plus, X, TextCursorInput, MessageSquare } from 'lucide-react';
+import {
+  Book,
+  X,
+  TextCursorInput,
+  MessageSquare,
+  Clock,
+  Volume2,
+  RefreshCw,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
-export default function ContentPanel() {
+interface ContentPanelProps {
+  onBrowseQuran: () => void;
+}
+
+export default function ContentPanel({ onBrowseQuran }: ContentPanelProps) {
   const {
     appMode,
-    selectedVerses,
-    setShowQuranBrowser,
+    quranProject,
+    resetQuranProject,
+    updateQuranProject,
     hadithData,
     updateHadithData,
     design,
     updateDesign,
-    clearVerses,
   } = useAppStore();
   const [customText, setCustomText] = useState('');
+  const [isLoadingTimestamps, setIsLoadingTimestamps] = useState(false);
+
+  const hasReader = !!quranProject?.reader;
+  const hasAyahs = (quranProject?.ayahs?.length ?? 0) > 0;
+  const hasRealTimestamps = hasAyahs && quranProject?.audioUrl && quranProject.audioUrl.length > 0;
 
   const handleAddCustomText = () => {
     if (!customText.trim()) return;
-    updateDesign({ customTexts: [...design.customTexts, customText.trim()] });
+    updateDesign({ backgroundImage: customText.trim() });
     setCustomText('');
     toast.success('تمت إضافة النص');
   };
 
-  const handleRemoveCustomText = (index: number) => {
-    const newTexts = design.customTexts.filter((_, i) => i !== index);
-    updateDesign({ customTexts: newTexts });
-  };
+  const handleReloadTimestamps = useCallback(async () => {
+    if (!quranProject?.surahId || !quranProject?.reader) {
+      toast.error('اختر سورة وقارئاً أولاً');
+      return;
+    }
+
+    setIsLoadingTimestamps(true);
+
+    try {
+      const [timestampsRes, versesRes] = await Promise.allSettled([
+        fetch(
+          `/api/quran/timestamps?surah=${quranProject.surahId}&recitationId=${quranProject.reader.recitationId}`
+        ),
+        fetch(
+          `/api/quran/verses?surah=${quranProject.surahId}&from=${quranProject.ayahFrom}&to=${quranProject.ayahTo}`
+        ),
+      ]);
+
+      if (timestampsRes.status === 'rejected' || !timestampsRes.value.ok) {
+        toast.error('فشل تحميل التوقيتات الصوتية');
+        return;
+      }
+
+      const timestampsData = await timestampsRes.value.json();
+
+      if (!timestampsData.ayahs || timestampsData.ayahs.length === 0) {
+        toast.error('لا توجد بيانات توقيتات');
+        return;
+      }
+
+      // Filter timestamps to selected range
+      const filteredTimestamps = timestampsData.ayahs.filter(
+        (ayah: { numberInSurah: number }) =>
+          ayah.numberInSurah >= quranProject.ayahFrom &&
+          ayah.numberInSurah <= quranProject.ayahTo
+      );
+
+      // Get verse text
+      let versesData: { verses: Array<{ numberInSurah: number; text: string }> } | null = null;
+      if (versesRes.status === 'fulfilled' && versesRes.value.ok) {
+        versesData = await versesRes.value.json();
+      }
+
+      const textMap = new Map<number, string>();
+      if (versesData?.verses) {
+        for (const verse of versesData.verses) {
+          textMap.set(verse.numberInSurah, verse.text);
+        }
+      }
+
+      const mergedAyahs = filteredTimestamps.map(
+        (ts: { numberInSurah: number; startTime: number; endTime: number }) => ({
+          numberInSurah: ts.numberInSurah,
+          text: textMap.get(ts.numberInSurah) || '',
+          startTime: ts.startTime,
+          endTime: ts.endTime,
+        })
+      );
+
+      let rangeTotalDuration = 0;
+      if (mergedAyahs.length > 0) {
+        rangeTotalDuration =
+          mergedAyahs[mergedAyahs.length - 1].endTime -
+          mergedAyahs[0].startTime;
+      }
+
+      updateQuranProject({
+        ayahs: mergedAyahs,
+        totalDuration: rangeTotalDuration,
+        audioUrl: timestampsData.audioUrl || '',
+        surahName: timestampsData.surahName || quranProject.surahName,
+        surahNameEn: timestampsData.surahNameEn || quranProject.surahNameEn,
+        error: null,
+      });
+
+      toast.success('تم تحديث التوقيتات الصوتية بنجاح');
+    } catch {
+      toast.error('حدث خطأ أثناء تحميل التوقيتات');
+    } finally {
+      setIsLoadingTimestamps(false);
+    }
+  }, [quranProject, updateQuranProject]);
 
   if (appMode === 'hadith') {
     return (
@@ -52,14 +149,14 @@ export default function ContentPanel() {
           <h2 className="text-base font-bold text-foreground arabic-text">محتوى الحديث</h2>
         </div>
 
-        {/* Hadith category */}
+        {/* Hadith collection */}
         <div>
           <Label className="text-xs text-muted-foreground mb-1.5 block arabic-text">
             تصنيف الحديث
           </Label>
           <Select
-            value={hadithData.category}
-            onValueChange={(value) => updateHadithData({ category: value })}
+            value={hadithData.collection}
+            onValueChange={(value) => updateHadithData({ collection: value })}
           >
             <SelectTrigger className="bg-secondary border-border text-foreground">
               <SelectValue />
@@ -72,6 +169,20 @@ export default function ContentPanel() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Hadith number */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1.5 block arabic-text">
+            رقم الحديث
+          </Label>
+          <Input
+            type="number"
+            placeholder="مثال: 1"
+            value={hadithData.hadithNumber || ''}
+            onChange={(e) => updateHadithData({ hadithNumber: parseInt(e.target.value) || 0 })}
+            className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+          />
         </div>
 
         {/* Hadith text */}
@@ -97,20 +208,20 @@ export default function ContentPanel() {
             placeholder="مثال: عن أبي هريرة رضي الله عنه"
             value={hadithData.narrator}
             onChange={(e) => updateHadithData({ narrator: e.target.value })}
-            className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+            className="bg-secondary border-border text-foreground placeholder:text-muted-foreground arabic-text"
           />
         </div>
 
-        {/* Source */}
+        {/* Grade */}
         <div>
           <Label className="text-xs text-muted-foreground mb-1.5 block arabic-text">
-            المصدر
+            درجة الحديث
           </Label>
           <Input
-            placeholder="مثال: رواه البخاري ومسلم"
-            value={hadithData.source}
-            onChange={(e) => updateHadithData({ source: e.target.value })}
-            className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+            placeholder="مثال: صحيح"
+            value={hadithData.grade}
+            onChange={(e) => updateHadithData({ grade: e.target.value })}
+            className="bg-secondary border-border text-foreground placeholder:text-muted-foreground arabic-text"
           />
         </div>
 
@@ -133,7 +244,7 @@ export default function ContentPanel() {
 
       {/* Browse Quran Button */}
       <button
-        onClick={() => setShowQuranBrowser(true)}
+        onClick={onBrowseQuran}
         className="w-full group relative overflow-hidden rounded-xl h-14 border border-gold/20 bg-gradient-to-l from-gold/5 via-gold/10 to-gold/5 hover:from-gold/10 hover:via-gold/15 hover:to-gold/10 transition-all duration-300"
       >
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-gold/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
@@ -143,44 +254,151 @@ export default function ContentPanel() {
         </div>
       </button>
 
-      {/* Selected verses */}
-      {selectedVerses.length > 0 && (
-        <div className="space-y-2">
+      {/* Selected verses info */}
+      {hasAyahs && (
+        <div className="space-y-3">
+          {/* Surah info header */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground arabic-text">الآيات المختارة</span>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => clearVerses()}
+                onClick={() => resetQuranProject()}
                 className="text-[10px] text-muted-foreground hover:text-red-400 transition-colors arabic-text flex items-center gap-1"
               >
                 <X className="w-3 h-3" />
                 مسح الكل
               </button>
               <Badge className="bg-gold/10 text-gold border-gold/20 text-[10px]">
-                {selectedVerses.length} آية
+                {quranProject?.ayahs?.length ?? 0} آية
               </Badge>
             </div>
           </div>
-          <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
-            {selectedVerses.map((verse) => (
+
+          {/* Surah details card */}
+          <div className="bg-gold/5 rounded-xl p-3.5 border border-gold/15 space-y-2.5">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gold arabic-text">
+                {quranProject?.surahName}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {quranProject?.surahNameEn}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 text-[10px] text-muted-foreground/70">
+              <span className="arabic-text">
+                الآيات {quranProject?.ayahFrom} - {quranProject?.ayahTo}
+              </span>
+              <span className="text-border">|</span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {quranProject?.totalDuration
+                  ? `${Math.floor(quranProject.totalDuration / 60)}:${String(Math.floor(quranProject.totalDuration % 60)).padStart(2, '0')}`
+                  : '--:--'}
+              </span>
+            </div>
+
+            {/* Reader info */}
+            {quranProject?.reader ? (
+              <div className="flex items-center gap-2 pt-1 border-t border-gold/10">
+                <Volume2 className="w-3.5 h-3.5 text-gold/60" />
+                <span className="text-[11px] text-gold/80 arabic-text font-medium">
+                  {quranProject.reader.name}
+                </span>
+                <span className="text-[10px] text-muted-foreground/50">
+                  {quranProject.reader.nameEn}
+                </span>
+                {hasRealTimestamps ? (
+                  <Badge className="bg-emerald/10 text-emerald border-emerald/20 text-[9px] mr-auto">
+                    متزامن
+                  </Badge>
+                ) : (
+                  <Badge className="bg-gold/10 text-gold border-gold/20 text-[9px] mr-auto">
+                    تقديري
+                  </Badge>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 pt-1 border-t border-gold/10">
+                <AlertCircle className="w-3.5 h-3.5 text-gold/40" />
+                <span className="text-[10px] text-gold/50 arabic-text">
+                  لم يتم اختيار قارئ — التوقيت تقديري
+                </span>
+              </div>
+            )}
+
+            {/* Load Timestamps button */}
+            {hasReader && !hasRealTimestamps && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleReloadTimestamps}
+                disabled={isLoadingTimestamps}
+                className="w-full mt-2 h-8 text-xs bg-gold/5 hover:bg-gold/10 text-gold border border-gold/10 arabic-text"
+              >
+                {isLoadingTimestamps ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 ml-1.5 animate-spin" />
+                    جارٍ تحميل التوقيتات...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 ml-1.5" />
+                    تحميل التوقيتات المتزامنة
+                  </>
+                )}
+              </Button>
+            )}
+
+            {/* Reload timestamps when reader changes */}
+            {hasReader && hasRealTimestamps && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleReloadTimestamps}
+                disabled={isLoadingTimestamps}
+                className="w-full mt-2 h-8 text-xs bg-emerald/5 hover:bg-emerald/10 text-emerald border border-emerald/10 arabic-text"
+              >
+                {isLoadingTimestamps ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 ml-1.5 animate-spin" />
+                    جارٍ التحديث...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 ml-1.5" />
+                    إعادة تحميل التوقيتات
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+
+          {/* Error message */}
+          {quranProject?.error && (
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-gold/5 border border-gold/10">
+              <AlertCircle className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+              <span className="text-[11px] text-gold/70 arabic-text">{quranProject.error}</span>
+            </div>
+          )}
+
+          {/* Verse list */}
+          <div className="max-h-48 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
+            {quranProject?.ayahs?.map((ayah) => (
               <div
-                key={`${verse.surahId}-${verse.ayahNumber}`}
+                key={`${quranProject?.surahId}-${ayah.numberInSurah}`}
                 className="flex items-start gap-2 p-2 rounded-lg bg-secondary/50 border border-border/50 text-xs"
               >
                 <div className="flex-shrink-0 flex items-center gap-1.5 mt-0.5">
                   <span className="w-1 h-1 rounded-full bg-gold/60" />
-                  <span className="text-gold font-medium arabic-text whitespace-nowrap">{verse.surahName}</span>
-                  <span className="text-muted-foreground whitespace-nowrap">{verse.ayahNumber}</span>
+                  <span className="text-gold font-medium whitespace-nowrap">{ayah.numberInSurah}</span>
                 </div>
-                <span className="flex-1 text-foreground/70 truncate arabic-text leading-relaxed">{verse.ayahText}</span>
-                <button
-                  onClick={() =>
-                    useAppStore.getState().removeVerse(verse.surahId, verse.ayahNumber)
-                  }
-                  className="text-muted-foreground/50 hover:text-red-400 transition-colors flex-shrink-0 mt-0.5"
-                >
-                  <X className="w-3 h-3" />
-                </button>
+                <span className="flex-1 text-foreground/70 truncate arabic-text leading-relaxed">{ayah.text}</span>
+                {hasRealTimestamps && ayah.endTime > ayah.startTime && (
+                  <span className="text-[9px] text-muted-foreground/40 whitespace-nowrap mt-0.5">
+                    {Math.floor(ayah.endTime - ayah.startTime)}ث
+                  </span>
+                )}
               </div>
             ))}
           </div>
@@ -189,37 +407,14 @@ export default function ContentPanel() {
 
       <Separator className="bg-border" />
 
-      {/* English translation toggle */}
-      <div className="flex items-center justify-between">
-        <Label className="text-sm text-foreground arabic-text">الترجمة الإنجليزية</Label>
-        <button
-          onClick={() =>
-            updateDesign({ showEnglishTranslation: !design.showEnglishTranslation })
-          }
-          className={`w-10 h-5 rounded-full transition-all ${
-            design.showEnglishTranslation ? 'bg-gold' : 'bg-secondary'
-          }`}
-        >
-          <div
-            className={`w-4 h-4 rounded-full bg-white transition-transform ${
-              design.showEnglishTranslation
-                ? 'translate-x-5'
-                : 'translate-x-0.5'
-            }`}
-          />
-        </button>
-      </div>
-
-      <Separator className="bg-border" />
-
       {/* Custom texts */}
       <div>
         <div className="flex items-center gap-2 mb-3">
           <TextCursorInput className="w-4 h-4 text-emerald" />
-          <h3 className="text-sm font-semibold text-foreground arabic-text">نصوص مخصصة</h3>
+          <h3 className="text-sm font-semibold text-foreground arabic-text">نص مخصص</h3>
         </div>
 
-        <div className="flex gap-2 mb-3">
+        <div className="flex gap-2">
           <Input
             placeholder="أدخل نصاً مخصصاً..."
             value={customText}
@@ -233,30 +428,9 @@ export default function ContentPanel() {
             className="bg-gold hover:bg-gold-dark text-background flex-shrink-0"
             disabled={!customText.trim()}
           >
-            <Plus className="w-4 h-4" />
+            <TextCursorInput className="w-4 h-4" />
           </Button>
         </div>
-
-        {design.customTexts.length > 0 && (
-          <div className="space-y-1.5 max-h-32 overflow-y-auto">
-            {design.customTexts.map((text, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-2 p-2 rounded-lg bg-secondary/50 border border-border/50"
-              >
-                <p className="text-xs text-foreground flex-1 arabic-text leading-relaxed">
-                  {text}
-                </p>
-                <button
-                  onClick={() => handleRemoveCustomText(index)}
-                  className="text-muted-foreground hover:text-red-400 transition-colors flex-shrink-0"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );

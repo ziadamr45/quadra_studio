@@ -30,3 +30,15 @@ model SavedProject {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model ExportJob {
+  id          String   @id @default(cuid())
+  status      String   @default("pending")  // pending, processing, completed, failed
+  mode        String   @default("quran")    // quran or hadith
+  config      String   // JSON string of the project configuration
+  outputUrl   String?  // URL to the exported video file (when completed)
+  progress    Int      @default(0)          // 0-100
+  error       String?  // Error message (if failed)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

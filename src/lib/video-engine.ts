@@ -1,39 +1,18 @@
 // Video Export Engine for Qudra Studio
 // Uses Canvas API + MediaRecorder to export videos with watermark
 
-import type { SelectedVerse } from './store';
+import type { AyahTimestamp, VideoDesign, HadithData } from './store';
 
 interface ExportConfig {
   width: number;
   height: number;
   fps: number;
-  verses: SelectedVerse[];
-  design: {
-    bg1: string;
-    bg2: string;
-    accentColor: string;
-    patternType: string;
-    patternDensity: number;
-    showPattern: boolean;
-    fontType: string;
-    fontSize: number;
-    textColor: string;
-    accentTextColor: string;
-    textStyle: string;
-    showAyahNumber: boolean;
-    showSurahName: boolean;
-    showReaderName: boolean;
-    showProgressBar: boolean;
-    showWatermark: boolean;
-    customReaderName: string;
-  };
+  ayahs: AyahTimestamp[];
+  surahName: string;
+  design: VideoDesign;
   readerName: string;
   mode: 'quran' | 'hadith';
-  hadithData: {
-    text: string;
-    narrator: string;
-    source: string;
-  };
+  hadithData: HadithData;
   audioUrls: string[];
   onProgress: (progress: number) => void;
 }
@@ -120,10 +99,10 @@ function drawWatermark(ctx: CanvasRenderingContext2D, w: number, h: number) {
 function drawVerseFrame(
   ctx: CanvasRenderingContext2D,
   config: ExportConfig,
-  verseIndex: number,
+  ayahIndex: number,
   progress: number
 ) {
-  const { width: w, height: h, design, verses, readerName, mode, hadithData } = config;
+  const { width: w, height: h, design, ayahs, surahName, readerName, mode, hadithData } = config;
 
   // Clear
   ctx.clearRect(0, 0, w, h);
@@ -158,87 +137,95 @@ function drawVerseFrame(
 
   const fontFamily = getFontFamily(design.fontType);
 
-  if (mode === 'quran' && verses.length > 0) {
-    const verse = verses[verseIndex] || verses[0];
+  if (mode === 'quran' && ayahs.length > 0) {
+    const ayah = ayahs[ayahIndex] || ayahs[0];
 
     // Surah name
-    if (design.showSurahName) {
+    if (design.showSurahName && surahName) {
       ctx.save();
       ctx.font = `500 ${Math.max(14, w * 0.018)}px "${fontFamily}", serif`;
       ctx.fillStyle = design.accentTextColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      ctx.fillText(`سورة ${verse.surahName}`, w / 2, h * 0.08);
+      ctx.fillText(`سورة ${surahName}`, w / 2, h * 0.08);
       ctx.restore();
     }
 
     // Verse text
-    if (design.showText) {
-      ctx.save();
-      const fontSize = Math.max(16, design.fontSize * (w / 400));
-      ctx.font = `${design.textStyle === 'bold' ? 'bold' : 'normal'} ${fontSize}px "${fontFamily}", serif`;
-      ctx.fillStyle = design.textColor;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.shadowColor = 'rgba(0,0,0,0.5)';
-      ctx.shadowOffsetX = 1;
-      ctx.shadowOffsetY = 1;
-      ctx.shadowBlur = 4;
+    ctx.save();
+    const fontSize = Math.max(16, design.fontSize * (w / 400));
+    ctx.font = `${design.textStyle === 'bold' ? 'bold' : 'normal'} ${fontSize}px "${fontFamily}", serif`;
+    ctx.fillStyle = design.textColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.shadowBlur = 4;
 
-      if (design.textStyle === 'with-shadow') {
-        ctx.shadowBlur = 8;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
-      }
-
-      // Word wrap the verse text
-      const maxWidth = w * 0.8;
-      const text = verse.ayahText;
-      const words = text.split(' ');
-      const lines: string[] = [];
-      let currentLine = '';
-
-      for (const word of words) {
-        const testLine = currentLine ? `${currentLine} ${word}` : word;
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && currentLine) {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          currentLine = testLine;
-        }
-      }
-      if (currentLine) lines.push(currentLine);
-
-      const lineHeight = fontSize * 2.2;
-      const startY = (h - lines.length * lineHeight) / 2 + lineHeight / 2;
-
-      lines.forEach((line, i) => {
-        ctx.fillText(line, w / 2, startY + i * lineHeight);
-
-        // Ayah number at the end of last line
-        if (design.showAyahNumber && i === lines.length - 1) {
-          ctx.save();
-          ctx.font = `${Math.max(10, fontSize * 0.3)}px "${fontFamily}", serif`;
-          ctx.fillStyle = design.accentTextColor;
-          const numText = `${verse.ayahNumber}`;
-          const numMetrics = ctx.measureText(numText);
-          const lineMetrics = ctx.measureText(line);
-          const numX = w / 2 + lineMetrics.width / 2 + 16;
-          const numY = startY + i * lineHeight;
-
-          // Draw circle around ayah number
-          ctx.beginPath();
-          ctx.arc(numX, numY - 4, Math.max(8, fontSize * 0.25), 0, Math.PI * 2);
-          ctx.strokeStyle = design.accentColor + '50';
-          ctx.lineWidth = 1;
-          ctx.stroke();
-          ctx.fillText(numText, numX, numY);
-          ctx.restore();
-        }
-      });
-      ctx.restore();
+    if (design.textStyle === 'with-shadow') {
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
     }
+
+    // Word wrap the verse text
+    const maxWidth = w * 0.8;
+    const text = ayah.text;
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    if (currentLine) lines.push(currentLine);
+
+    // Determine vertical position based on textPosition
+    let startY: number;
+    const lineHeight = fontSize * 2.2;
+    switch (design.textPosition) {
+      case 'top':
+        startY = h * 0.15;
+        break;
+      case 'bottom':
+        startY = h * 0.6 - (lines.length * lineHeight) / 2 + lineHeight / 2;
+        break;
+      default: // center
+        startY = (h - lines.length * lineHeight) / 2 + lineHeight / 2;
+    }
+
+    lines.forEach((line, i) => {
+      ctx.fillText(line, w / 2, startY + i * lineHeight);
+
+      // Ayah number at the end of last line
+      if (design.showAyahNumber && i === lines.length - 1) {
+        ctx.save();
+        ctx.font = `${Math.max(10, fontSize * 0.3)}px "${fontFamily}", serif`;
+        ctx.fillStyle = design.accentTextColor;
+        const numText = `${ayah.numberInSurah}`;
+        const lineMetrics = ctx.measureText(line);
+        const numX = w / 2 + lineMetrics.width / 2 + 16;
+        const numY = startY + i * lineHeight;
+
+        // Draw circle around ayah number
+        ctx.beginPath();
+        ctx.arc(numX, numY - 4, Math.max(8, fontSize * 0.25), 0, Math.PI * 2);
+        ctx.strokeStyle = design.accentColor + '50';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillText(numText, numX, numY);
+        ctx.restore();
+      }
+    });
+    ctx.restore();
 
     // Reader name
     if (design.showReaderName && readerName) {
@@ -248,18 +235,18 @@ function drawVerseFrame(
       ctx.globalAlpha = 0.7;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      ctx.fillText(`﴾ ${design.customReaderName || readerName} ﴿`, w / 2, h * 0.88);
+      ctx.fillText(`﴾ ${readerName} ﴿`, w / 2, h * 0.88);
       ctx.restore();
     }
   } else if (mode === 'hadith' && hadithData.text) {
-    // Hadith source
-    if (hadithData.source) {
+    // Hadith collection
+    if (hadithData.collection) {
       ctx.save();
       ctx.font = `500 ${Math.max(12, w * 0.016)}px "${fontFamily}", serif`;
       ctx.fillStyle = design.accentTextColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      ctx.fillText(hadithData.source, w / 2, h * 0.1);
+      ctx.fillText(hadithData.collection, w / 2, h * 0.1);
       ctx.restore();
     }
 
@@ -339,7 +326,7 @@ function drawVerseFrame(
 }
 
 export async function exportVideo(config: ExportConfig): Promise<Blob> {
-  const { width, height, fps, verses, audioUrls, onProgress } = config;
+  const { width, height, fps, ayahs, audioUrls, onProgress } = config;
 
   // Create offscreen canvas
   const canvas = document.createElement('canvas');
@@ -387,7 +374,7 @@ export async function exportVideo(config: ExportConfig): Promise<Blob> {
       totalDuration = Math.max(audioUrls.length * 5000, 10000);
     } else {
       // No audio - use estimated timing
-      totalDuration = verses.length > 0 ? verses.length * 5000 : 10000;
+      totalDuration = ayahs.length > 0 ? ayahs.length * 5000 : 10000;
     }
 
     const totalFrames = (totalDuration / 1000) * fps;
@@ -401,14 +388,14 @@ export async function exportVideo(config: ExportConfig): Promise<Blob> {
       }
 
       const overallProgress = currentFrame / totalFrames;
-      const verseCount = verses.length || 1;
-      const verseIndex = Math.min(
-        Math.floor(overallProgress * verseCount),
-        verseCount - 1
+      const ayahCount = ayahs.length || 1;
+      const ayahIndex = Math.min(
+        Math.floor(overallProgress * ayahCount),
+        ayahCount - 1
       );
-      const verseProgress = (overallProgress * verseCount) - verseIndex;
+      const ayahProgress = (overallProgress * ayahCount) - ayahIndex;
 
-      drawVerseFrame(ctx, config, verseIndex, verseProgress);
+      drawVerseFrame(ctx, config, ayahIndex, ayahProgress);
       onProgress(Math.round(overallProgress * 100));
 
       currentFrame++;
