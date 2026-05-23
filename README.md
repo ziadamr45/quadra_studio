@@ -2,7 +2,7 @@
 
 # 🎬 قدرة ستوديو | Quadra Studio
 
-## 📸 Screenshot
+## 📸 لقطات الشاشة | Screenshots
 
 ![quadra_studio Screenshot](screenshot.png)
 
