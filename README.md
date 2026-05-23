@@ -88,7 +88,7 @@ npm run dev
 
 <div align="center">
 
-Made with ❤️ by [Ziad Amr](https://github.com/ziadamr45)
+Ziad Amr
 
 </div>
 
@@ -162,6 +162,6 @@ The app will be available at `http://localhost:3000`
 
 <div align="center">
 
-Made with ❤️ by [Ziad Amr](https://github.com/ziadamr45)
+Ziad Amr
 
 </div>
