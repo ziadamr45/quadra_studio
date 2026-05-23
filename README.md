@@ -2,6 +2,10 @@
 
 # 🎬 قدرة ستوديو | Quadra Studio
 
+## 📸 Screenshot
+
+![quadra_studio Screenshot](screenshot.png)
+
 ### صانع فيديوهات قرآنية احترافية لليوتيوب والتيك توك
 ### Quranic video maker for YouTube & TikTok with professional templates
 
