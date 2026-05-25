@@ -95,7 +95,6 @@ Ziad Amr
 ---
 
 
-
 ### 👨‍💻 المطور
 
 **زياد عمرو (Ziad Amr)**
@@ -114,6 +113,7 @@ Ziad Amr
 ---
 
 ## English
+
 
 **Quadra Studio** is a comprehensive web application for creating professional Quranic videos tailored for YouTube and TikTok. Users can choose from a variety of ready-made templates and reciter voices to produce high-quality Quranic content with ease and speed.
 
@@ -199,3 +199,4 @@ Ziad Amr
 - 🎥 YouTube: [@alhayat_ala_eltarek](https://youtube.com/@alhayat_ala_eltarek?si=pcsc_31Kcv3Jym14)
 - 💼 LinkedIn: [ziad-amr](https://www.linkedin.com/in/ziad-amr-44633a411)
 - 📧 Email: ziad90216@gmail.com
+
