@@ -119,15 +119,15 @@ npm run dev
 **زياد عمرو (Ziad Amr)**
 
 - 🌐 الموقع الشخصي: [ziadamrme.vercel.app](https://ziadamrme.vercel.app)
-- 💼 GitHub: [ziadamr45](https://github.com/ziadamr45)
-- 📘 Facebook: [ziad7mr](https://www.facebook.com/ziad7mr)
-- 💬 Telegram: [@ziadamr](https://t.me/ziadamr)
-- 📸 Instagram: [ziadamr455](https://www.instagram.com/ziadamr455/)
-- 🧵 Threads: [@ziadamr455](https://www.threads.com/@ziadamr455)
-- 🐦 X: [@ziad90216](https://x.com/ziad90216)
-- 🎥 YouTube: [@alhayat_ala_eltarek](https://youtube.com/@alhayat_ala_eltarek?si=pcsc_31Kcv3Jym14)
-- 💼 LinkedIn: [ziad-amr](https://www.linkedin.com/in/ziad-amr-44633a411)
-- 📧 Email: ziad90216@gmail.com
+- 💼 جيت هاب: [ziadamr45](https://github.com/ziadamr45)
+- 📘 فيسبوك: [ziad7mr](https://www.facebook.com/ziad7mr)
+- 💬 تيليجرام: [@ziadamr](https://t.me/ziadamr)
+- 📸 إنستاجرام: [ziadamr455](https://www.instagram.com/ziadamr455/)
+- 🧵 ثريدز: [@ziadamr455](https://www.threads.com/@ziadamr455)
+- 🐦 إكس: [@ziad90216](https://x.com/ziad90216)
+- 🎥 يوتيوب: [@alhayat_ala_eltarek](https://youtube.com/@alhayat_ala_eltarek?si=pcsc_31Kcv3Jym14)
+- 💼 لينكد إن: [ziad-amr](https://www.linkedin.com/in/ziad-amr-44633a411)
+- 📧 البريد الإلكتروني: ziad90216@gmail.com
 
 ---
 
