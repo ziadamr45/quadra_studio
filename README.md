@@ -122,7 +122,7 @@ npm run dev
 - 💼 جيت هاب: [ziadamr45](https://github.com/ziadamr45)
 - 📘 فيسبوك: [ziad7mr](https://www.facebook.com/ziad7mr)
 - 💬 تيليجرام: [@ziadamr](https://t.me/ziadamr)
-- 📸 إنستاجرام: [ziadamr455](https://www.instagram.com/ziadamr455/)
+- 📸 انستجرام: [ziadamr455](https://www.instagram.com/ziadamr455/)
 - 🧵 ثريدز: [@ziadamr455](https://www.threads.com/@ziadamr455)
 - 🐦 إكس: [@ziad90216](https://x.com/ziad90216)
 - 🎥 يوتيوب: [@alhayat_ala_eltarek](https://youtube.com/@alhayat_ala_eltarek?si=pcsc_31Kcv3Jym14)
