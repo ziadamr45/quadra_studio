@@ -11,6 +11,7 @@ export interface Reader {
   name: string;
   nameEn: string;
   recitationId: number; // Quran.com recitation ID
+  everyAyahFolder: string; // EveryAyah.com folder name
   qualities: { label: string; bitrate: string; audioId: string }[];
 }
 
@@ -131,13 +132,14 @@ export const surahs: Surah[] = [
   { id: 114, name: "الناس", nameEn: "An-Nas", ayahs: 6, type: "meccan" },
 ];
 
-// Readers with Quran.com recitation IDs
+// Readers with Quran.com recitation IDs and EveryAyah.com folder names
 export const readers: Reader[] = [
   {
     id: "ar.alafasy",
     name: "مشاري العفاسي",
     nameEn: "Mishary Al-Afasy",
     recitationId: 7,
+    everyAyahFolder: "Alafasy",
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.alafasy" },
     ],
@@ -147,6 +149,7 @@ export const readers: Reader[] = [
     name: "عبد الباسط عبد الصمد",
     nameEn: "Abdul Basit (Murattal)",
     recitationId: 1,
+    everyAyahFolder: "Abdul_Basit_Murattal",
     qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.abdulbasitmurattal" },
     ],
@@ -156,6 +159,7 @@ export const readers: Reader[] = [
     name: "عبد الباسط (مجود)",
     nameEn: "Abdul Basit (Mujawwad)",
     recitationId: 1,
+    everyAyahFolder: "Abdul_Basit_Mujawwad",
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.abdulbasitmujawwad" },
     ],
@@ -165,6 +169,7 @@ export const readers: Reader[] = [
     name: "عبد الرحمن السديس",
     nameEn: "Abdurrahman As-Sudais",
     recitationId: 4,
+    everyAyahFolder: "Sudais",
     qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.sudais" },
     ],
@@ -174,6 +179,7 @@ export const readers: Reader[] = [
     name: "أبو بكر الشاطري",
     nameEn: "Abu Bakr Ash-Shatri",
     recitationId: 3,
+    everyAyahFolder: "Shatri",
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.shaatree" },
     ],
@@ -183,6 +189,7 @@ export const readers: Reader[] = [
     name: "أحمد العجمي",
     nameEn: "Ahmed Al-Ajmy",
     recitationId: 2,
+    everyAyahFolder: "Ajamy",
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.ahmedajamy" },
     ],
@@ -192,6 +199,7 @@ export const readers: Reader[] = [
     name: "سعود الشريم",
     nameEn: "Saood Ash-Shuraym",
     recitationId: 9,
+    everyAyahFolder: "Shuraym",
     qualities: [
       { label: "64kbps", bitrate: "64kbps", audioId: "ar.saaborimuneer" },
     ],
@@ -201,6 +209,7 @@ export const readers: Reader[] = [
     name: "هاني الرفاعي",
     nameEn: "Hani Ar-Rifai",
     recitationId: 16,
+    everyAyahFolder: "Rifai",
     qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.hanirifai" },
     ],
@@ -210,6 +219,7 @@ export const readers: Reader[] = [
     name: "محمود خليل الحصري",
     nameEn: "Mahmoud Khalil Al-Husary",
     recitationId: 5,
+    everyAyahFolder: "Husary",
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.husary" },
     ],
@@ -219,6 +229,7 @@ export const readers: Reader[] = [
     name: "علي الحذيفي",
     nameEn: "Ali Al-Hudhaify",
     recitationId: 8,
+    everyAyahFolder: "Hudhaify",
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.hudhaify" },
     ],
@@ -228,6 +239,7 @@ export const readers: Reader[] = [
     name: "ماهر المعيقلي",
     nameEn: "Maher Al-Muaiqly",
     recitationId: 10,
+    everyAyahFolder: "Muaiqly",
     qualities: [
       { label: "128kbps", bitrate: "128kbps", audioId: "ar.mahermuaiqly" },
     ],
@@ -237,6 +249,7 @@ export const readers: Reader[] = [
     name: "محمد صديق المنشاوي",
     nameEn: "Muhammad Siddiq Al-Minshawi",
     recitationId: 6,
+    everyAyahFolder: "Minshawi_Murattal",
     qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.minshawi" },
     ],
@@ -246,6 +259,7 @@ export const readers: Reader[] = [
     name: "عبد الله بصفر",
     nameEn: "Abdullah Basfar",
     recitationId: 11,
+    everyAyahFolder: "Basfar",
     qualities: [
       { label: "192kbps", bitrate: "192kbps", audioId: "ar.abdullahbasfar" },
     ],
@@ -255,6 +269,7 @@ export const readers: Reader[] = [
     name: "أيمن سويد",
     nameEn: "Ayman Suwayd",
     recitationId: 22,
+    everyAyahFolder: "Ayman_Sowayd",
     qualities: [
       { label: "64kbps", bitrate: "64kbps", audioId: "ar.aymanswaid" },
     ],
@@ -461,6 +476,21 @@ export function getAudioUrl(audioId: string, surahNumber: number, ayahNumber: nu
   
   const absoluteAyah = surahAyahOffsets[surahNumber - 1] + ayahNumber;
   return `https://cdn.islamic.network/quran/audio/128/${audioId}/${absoluteAyah}.mp3`;
+}
+
+// Helper: Build EveryAyah.com URL for per-ayah audio
+// Format: https://everyayah.com/data/{folder}/{sssaaa}.mp3
+// sss = 3-digit surah number, aaa = 3-digit ayah number
+export function getEveryAyahUrl(everyAyahFolder: string, surahNumber: number, ayahNumber: number): string {
+  const sss = String(surahNumber).padStart(3, '0');
+  const aaa = String(ayahNumber).padStart(3, '0');
+  return `https://everyayah.com/data/${everyAyahFolder}/${sss}${aaa}.mp3`;
+}
+
+// Helper: Build proxied EveryAyah URL (avoids CORS)
+export function getProxiedEveryAyahUrl(everyAyahFolder: string, surahNumber: number, ayahNumber: number): string {
+  const directUrl = getEveryAyahUrl(everyAyahFolder, surahNumber, ayahNumber);
+  return `/api/quran/audio-proxy?url=${encodeURIComponent(directUrl)}`;
 }
 
 // Helper: Get ayah text from API

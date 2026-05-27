@@ -49,7 +49,8 @@ export default function ContentPanel({ onBrowseQuran }: ContentPanelProps) {
 
   const hasReader = !!quranProject?.reader;
   const hasAyahs = (quranProject?.ayahs?.length ?? 0) > 0;
-  const hasRealTimestamps = hasAyahs && quranProject?.audioUrl && quranProject.audioUrl.length > 0;
+  // We no longer need a single audioUrl - using per-ayah EveryAyah audio
+  const hasRealTimestamps = hasAyahs && hasReader;
 
   const handleAddCustomText = () => {
     if (!customText.trim()) return;
@@ -127,7 +128,7 @@ export default function ContentPanel({ onBrowseQuran }: ContentPanelProps) {
       updateQuranProject({
         ayahs: mergedAyahs,
         totalDuration: rangeTotalDuration,
-        audioUrl: timestampsData.audioUrl || '',
+        audioUrl: '', // Per-ayah audio from EveryAyah - no single URL needed
         surahName: timestampsData.surahName || quranProject.surahName,
         surahNameEn: timestampsData.surahNameEn || quranProject.surahNameEn,
         error: null,

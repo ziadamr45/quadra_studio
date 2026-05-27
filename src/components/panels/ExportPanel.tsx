@@ -2,6 +2,7 @@
 
 import { useAppStore } from '@/lib/store';
 import { aspectRatios, qualityOptions } from '@/lib/quran-data';
+import { useVideoExporter } from '@/hooks/useVideoExporter';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -19,8 +20,8 @@ import {
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useCallback, useRef } from 'react';
-import { exportVideo, downloadBlob } from '@/lib/video-engine';
+import { useCallback, useMemo } from 'react';
+import { downloadBlob } from '@/lib/video-engine';
 
 type ExportStatus = 'idle' | 'preparing' | 'rendering' | 'finalizing' | 'complete' | 'error';
 
@@ -32,13 +33,7 @@ export default function ExportPanel() {
     quranProject,
     appMode,
     hadithData,
-    isExporting,
-    setIsExporting,
-    exportProgress,
-    setExportProgress,
   } = useAppStore();
-
-  const abortRef = useRef(false);
 
   const selectedReader = quranProject.reader;
   const selectedAyahs = quranProject.ayahs;
@@ -70,9 +65,31 @@ export default function ExportPanel() {
     }
   };
 
+  const dimensions = useMemo(() => getExportDimensions(), [currentAspect, exportSettings.preset]);
+
+  // Use the video exporter hook
+  const exporter = useVideoExporter({
+    width: dimensions.width,
+    height: dimensions.height,
+    fps: exportSettings.fps,
+    ayahs: selectedAyahs || [],
+    surahName: quranProject.surahName || '',
+    surahId: quranProject.surahId,
+    design,
+    reader: selectedReader,
+    readerName: selectedReader?.name || '',
+    mode: appMode,
+    hadithData: {
+      text: hadithData?.text || '',
+      narrator: hadithData?.narrator || '',
+      collection: hadithData?.collection || '',
+      hadithNumber: hadithData?.hadithNumber || 0,
+      grade: hadithData?.grade || '',
+    },
+  });
+
   const getResolutionLabel = () => {
-    const dims = getExportDimensions();
-    return `${dims.width} × ${dims.height}`;
+    return `${dimensions.width} × ${dimensions.height}`;
   };
 
   const getEstimatedDuration = () => {
@@ -82,7 +99,6 @@ export default function ExportPanel() {
       return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
     if (appMode === 'quran' && selectedAyahs?.length) {
-      // Estimate ~5 seconds per ayah
       const est = selectedAyahs.length * 5;
       const mins = Math.floor(est / 60);
       const secs = est % 60;
@@ -92,18 +108,16 @@ export default function ExportPanel() {
   };
 
   const getEstimatedFileSize = () => {
-    const dims = getExportDimensions();
-    const pixels = dims.width * dims.height;
+    const pixels = dimensions.width * dimensions.height;
     const durationSeconds =
       appMode === 'quran' && quranProject.totalDuration > 0
         ? quranProject.totalDuration
         : (selectedAyahs?.length || 1) * 5;
 
-    // Rough estimate: bitrate depends on quality
     let bitrate: number;
     switch (exportSettings.quality) {
       case 'high':
-        bitrate = 8; // Mbps
+        bitrate = 8;
         break;
       case 'medium':
         bitrate = 4;
@@ -115,7 +129,6 @@ export default function ExportPanel() {
         bitrate = 8;
     }
 
-    // Scale bitrate with resolution relative to 1080p
     const scale = Math.min(pixels / (1920 * 1080), 1);
     bitrate *= scale;
 
@@ -126,10 +139,10 @@ export default function ExportPanel() {
   };
 
   const getExportStatus = (): ExportStatus => {
-    if (!isExporting) return exportProgress >= 100 ? 'complete' : 'idle';
-    if (exportProgress < 10) return 'preparing';
-    if (exportProgress < 90) return 'rendering';
-    if (exportProgress < 100) return 'finalizing';
+    if (!exporter.isExporting) return exporter.progress >= 100 ? 'complete' : 'idle';
+    if (exporter.progress < 10) return 'preparing';
+    if (exporter.progress < 90) return 'rendering';
+    if (exporter.progress < 100) return 'finalizing';
     return 'complete';
   };
 
@@ -161,142 +174,24 @@ export default function ExportPanel() {
       return;
     }
 
-    abortRef.current = false;
-    setIsExporting(true);
-    setExportProgress(0);
-
     try {
-      // Step 1: Create export job via API
-      const config = {
-        mode: appMode,
-        design,
-        exportSettings,
-        quranProject: {
-          surahId: quranProject.surahId,
-          surahName: quranProject.surahName,
-          ayahFrom: quranProject.ayahFrom,
-          ayahTo: quranProject.ayahTo,
-          reader: selectedReader,
-          ayahs: selectedAyahs,
-          totalDuration: quranProject.totalDuration,
-        },
-        hadithData: appMode === 'hadith' ? hadithData : undefined,
-      };
-
-      // Call the API to register the export job
-      const response = await fetch('/api/export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: appMode, config }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create export job');
+      const blob = await exporter.exportVideo();
+      if (blob) {
+        const filename =
+          appMode === 'quran'
+            ? `qudra-quran-${quranProject.surahName || 'video'}.webm`
+            : `qudra-hadith-video.webm`;
+        downloadBlob(blob, filename);
+        toast.success('تم تصدير الفيديو بنجاح!');
       }
-
-      // Step 2: Use local Canvas-based export as fallback
-      const dimensions = getExportDimensions();
-
-      const verses = selectedAyahs.map((ayah) => ({
-        surahId: quranProject.surahId || 1,
-        surahName: quranProject.surahName,
-        ayahNumber: ayah.numberInSurah,
-        ayahText: ayah.text,
-      }));
-
-      const audioUrls: string[] = [];
-      if (appMode === 'quran' && selectedReader) {
-        for (const verse of verses) {
-          const url = `/api/quran/audio-proxy?url=${encodeURIComponent(
-            `https://cdn.islamic.network/quran/audio/128/${selectedReader.id}/${verse.surahId}:${verse.ayahNumber}.mp3`
-          )}`;
-          audioUrls.push(url);
-        }
-      }
-
-      const blob = await exportVideo({
-        width: dimensions.width,
-        height: dimensions.height,
-        fps: exportSettings.fps,
-        ayahs: selectedAyahs,
-        surahName: quranProject.surahName,
-        design: {
-          bg1: design.bg1,
-          bg2: design.bg2,
-          accentColor: design.accentColor,
-          patternType: design.patternType,
-          patternDensity: design.patternDensity,
-          showPattern: design.showPattern,
-          fontType: design.fontType,
-          fontSize: design.fontSize,
-          textColor: design.textColor,
-          accentTextColor: design.accentTextColor,
-          textStyle: design.textStyle,
-          showAyahNumber: design.showAyahNumber,
-          showSurahName: design.showSurahName,
-          showReaderName: design.showReaderName,
-          showProgressBar: design.showProgressBar,
-          showWatermark: true,
-          imageMotion: design.imageMotion,
-          backgroundImage: design.backgroundImage,
-          transitionType: design.transitionType,
-          transitionDuration: design.transitionDuration,
-          textPosition: design.textPosition,
-          aspectRatio: design.aspectRatio,
-          templateId: design.templateId,
-        },
-        readerName: selectedReader?.name || '',
-        mode: appMode,
-        hadithData: {
-          text: hadithData?.text || '',
-          narrator: hadithData?.narrator || '',
-          collection: hadithData?.collection || '',
-          hadithNumber: hadithData?.hadithNumber || 0,
-          grade: hadithData?.grade || '',
-        },
-        audioUrls,
-        onProgress: (progress) => {
-          if (abortRef.current) return;
-          setExportProgress(progress);
-        },
-      });
-
-      if (abortRef.current) {
-        toast.info('تم إلغاء التصدير');
-        return;
-      }
-
-      const filename =
-        appMode === 'quran'
-          ? `qudra-quran-${quranProject.surahName || 'video'}.webm`
-          : `qudra-hadith-video.webm`;
-      downloadBlob(blob, filename);
-
-      setExportProgress(100);
-      toast.success('تم تصدير الفيديو بنجاح!');
     } catch (error) {
       console.error('Export error:', error);
       toast.error('حدث خطأ أثناء التصدير');
-    } finally {
-      setIsExporting(false);
     }
-  }, [
-    hasContent,
-    appMode,
-    selectedReader,
-    selectedAyahs,
-    hadithData,
-    design,
-    exportSettings,
-    quranProject,
-    setIsExporting,
-    setExportProgress,
-  ]);
+  }, [hasContent, appMode, selectedReader, exporter, quranProject.surahName]);
 
   const handleCancel = () => {
-    abortRef.current = true;
-    setIsExporting(false);
-    setExportProgress(0);
+    exporter.cancel();
     toast.info('تم إلغاء التصدير');
   };
 
@@ -458,7 +353,11 @@ export default function ExportPanel() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground arabic-text">الصيغة</span>
-              <span className="text-xs text-foreground font-mono">WebM (VP9)</span>
+              <span className="text-xs text-foreground font-mono">WebM (VP9+Opus)</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground arabic-text">مصدر الصوت</span>
+              <span className="text-xs text-foreground font-mono arabic-text">EveryAyah.com</span>
             </div>
           </CardContent>
         </Card>
@@ -501,17 +400,17 @@ export default function ExportPanel() {
       <Separator className="bg-border/50" />
 
       {/* ====================== EXPORT PROGRESS ====================== */}
-      {isExporting && (
+      {exporter.isExporting && (
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground arabic-text">
               {getStatusText(status)}
             </span>
-            <span className="text-xs text-gold font-mono">{exportProgress}%</span>
+            <span className="text-xs text-gold font-mono">{exporter.progress}%</span>
           </div>
 
           <Progress
-            value={exportProgress}
+            value={exporter.progress}
             className="h-2 bg-secondary [&>[data-slot=progress-indicator]]:bg-gold"
           />
 
@@ -557,20 +456,28 @@ export default function ExportPanel() {
         </section>
       )}
 
+      {/* Error message */}
+      {exporter.error && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/5 border border-red-500/20">
+          <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+          <span className="text-xs text-red-400/80 arabic-text">{exporter.error}</span>
+        </div>
+      )}
+
       {/* ====================== EXPORT BUTTON ====================== */}
       <Button
         onClick={handleExport}
-        disabled={!hasContent || isExporting || (appMode === 'quran' && !selectedReader)}
+        disabled={!hasContent || exporter.isExporting || (appMode === 'quran' && !selectedReader)}
         className={`w-full h-12 text-base font-semibold transition-all duration-200 rounded-lg ${
-          hasContent && !isExporting && (appMode === 'hadith' || selectedReader)
+          hasContent && !exporter.isExporting && (appMode === 'hadith' || selectedReader)
             ? 'btn-gold'
             : 'bg-secondary text-muted-foreground cursor-not-allowed'
         }`}
       >
-        {isExporting ? (
+        {exporter.isExporting ? (
           <>
             <Loader2 className="w-5 h-5 ml-2 animate-spin" />
-            <span className="arabic-text">جارٍ التصدير... {exportProgress}%</span>
+            <span className="arabic-text">جارٍ التصدير... {exporter.progress}%</span>
           </>
         ) : (
           <>

@@ -203,7 +203,7 @@ export default function QuranBrowser({ open, onOpenChange }: QuranBrowserProps) 
           ayahTo: to,
           ayahs: mergedAyahs,
           totalDuration: rangeTotalDuration,
-          audioUrl: timestampsData.audioUrl || '',
+          audioUrl: '', // No longer using single audio file - using per-ayah from EveryAyah
           error: null,
         });
 

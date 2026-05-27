@@ -96,7 +96,7 @@ function drawWatermark(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.restore();
 }
 
-function drawVerseFrame(
+export function drawVerseFrame(
   ctx: CanvasRenderingContext2D,
   config: ExportConfig,
   ayahIndex: number,

@@ -15,6 +15,7 @@ export interface SelectedReader {
   name: string;
   nameEn: string;
   recitationId: number; // Quran.com recitation ID
+  everyAyahFolder: string; // EveryAyah.com folder name
   qualityLabel: string;
 }
 

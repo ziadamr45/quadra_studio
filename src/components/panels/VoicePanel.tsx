@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
-import { readers, getAudioUrl } from '@/lib/quran-data';
+import { readers, getProxiedEveryAyahUrl } from '@/lib/quran-data';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -52,16 +52,15 @@ export default function VoicePanel() {
     };
   }, []);
 
-  const handlePlayPreview = (readerId: string) => {
+  const handlePlayPreview = (readerId: string, everyAyahFolder: string) => {
     if (playingPreview === readerId) {
       audioRef.current?.pause();
       setPlayingPreview(null);
       return;
     }
 
-    const audioUrl = `/api/quran/audio?url=${encodeURIComponent(
-      getAudioUrl(readerId, 1, 1)
-    )}`;
+    // Use EveryAyah for preview: Al-Fatiha ayah 1
+    const audioUrl = getProxiedEveryAyahUrl(everyAyahFolder, 1, 1);
 
     if (audioRef.current) {
       audioRef.current.pause();
@@ -89,6 +88,7 @@ export default function VoicePanel() {
         name: reader.name,
         nameEn: reader.nameEn,
         recitationId: reader.recitationId,
+        everyAyahFolder: reader.everyAyahFolder,
         qualityLabel: firstQuality.label,
       },
     });
@@ -228,6 +228,12 @@ export default function VoicePanel() {
                   {selectedReader.qualityLabel}
                 </Badge>
               </div>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="w-2 h-2 rounded-full bg-emerald animate-pulse" />
+                <span className="text-[10px] text-emerald/80 arabic-text">
+                  صوت متزامن عبر EveryAyah.com
+                </span>
+              </div>
             </div>
           )}
 
@@ -296,7 +302,7 @@ export default function VoicePanel() {
                     className="h-8 w-8 text-muted-foreground hover:text-gold flex-shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handlePlayPreview(reader.id);
+                      handlePlayPreview(reader.id, reader.everyAyahFolder);
                     }}
                   >
                     {playingPreview === reader.id ? (
